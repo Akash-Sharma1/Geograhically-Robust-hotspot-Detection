@@ -21,13 +21,15 @@ int find_bottom_left(vector<coord> &pos){
     }
     return minl;
 }
+double scalefactor;
 void remove_negetive(vector<coord> &pos){
-    int neg=find_bottom_left();
+    scalefactor=find_bottom_left();
     for(int i=0;i<pos.size();i++){
-        pos[i].x-=neg;
-        pos[i].y-=neg;
+        pos[i].x-=scalefactor;
+        pos[i].y-=scalefactor;
     }
 }
+
 pair<int,int> getplanearea(vector<coord> &pos){
   int xmin,xmax,ymin,ymax;
   for(int i=0;i<pos.size();i++){
@@ -101,8 +103,8 @@ vector<coord>  MFCC(double x,double y, int radius,vector<coord> &p){
 double log_LRGrid_Upperbound(double areaMecc,double areaMfcc,int nMecc,int nMfcc){
   int uc=nMecc;
   int lc=nMfcc;
-  int ub=areaMecc*modP/areaS;
-  int lb=areaMfcc*modP/areaS;
+  double ub=areaMecc*modP/areaS;
+  double lb=areaMfcc*modP/areaS;
 
   if(!(uc>lb))return log(0);
 
@@ -119,19 +121,33 @@ double log_LRGrid_Upperbound(double areaMecc,double areaMfcc,int nMecc,int nMfcc
   }
   return log(a*b);
 }
-///////////////////////////////////////////////////////////////////////////////////////////
+class circle{
+public:
+  double x,y,radius;
+  int noofpoints;
+  double logLikelihood_circle(double areaS,int modP){
+      double areaCircle=3.14*radius*radius;
+      double B=(areaCircle/areaS)*modP;
+      int C=noofpoints;
+      if(!C>B)return log(0);
+      double a=(C/B);
+      a=power(a,C);
+      double b=(modP-C)/(modP-B);
+      b=power(b,(modP-C));
+      return log(a*b*I);
+  }
+};
+/////////////////////////////////////////////////////// PHASES //////////////////////////////////////////////////////////
 vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int thetha){
   for(int i=0;i<pos.size();i++){
     int x=pos[i].x/lcell;
     int y=pos[i].y/lcell;
     if(grid[x][y].cell_count==0){
-        grid[x][y].Xmin=grid[x][y].Ymin=-inf;
-        grid[x][y].Xmax=grid[x][y].Ymax=inf;
+        grid[x][y].Xmin=x*lcell;
+        grid[x][y].Ymin=y*lcell;
+        grid[x][y].Xmax=x*lcell+lcell-0.00001;
+        grid[x][y].Ymax=y*lcell+lcell-0.00001;
     }
-    grid[x][y].Xmin=min(grid[x][y].Xmin,x);
-    grid[x][y].Xmax=min(grid[x][y].Xmax,x);
-    grid[x][y].Ymin=min(grid[x][y].Ymin,y);
-    grid[x][y].Ymax=min(grid[x][y].Ymax,y);
     grid[x][y].cell_count++;
   }
   vector<pair<pair<int,int>,vector<coord> > > filtered_set;
@@ -176,10 +192,46 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
   }
   return filtered_set;
 }
-vector<vector<coord> > Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,int thetha){
-  for(int i=0;i<fset.size();i++){
+// This is diffrent from mecc
+circle find_smallest_enclosing_circle(){
 
+}
+vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,int thetha,int rmin){
+  vector<circles> candidate_circles;
+  for(int i=0;i<fset.size();i++){
+    pair<int,int> cellcenter=fset[i].first;
+    int r=inf;
+    double cenx=(grid[i][j].Xmin+grid[i][j].Xmax)/2;
+    double ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
+    circle maxC;
+    double maxllr=-1;
+    
+    while(fset[i].second.size()!=0 && r>=rmin){
+      circle C=new circle;
+      C=find_smallest_enclosing_circle();
+      if(lieincell(cellcenter,C.x,C.y) && C.radius>=rmin){
+        r=C.radius;
+        double llr=C.logLikelihood_circle();//parameters yet to be defined
+        if(maxllr<llr){
+          maxllr=llr;
+          maxC=C;
+        }
+      }
+      // farthest from center of cellcount
+      double dis=-1;int mpos;
+      for(int j=0;j<fset[i].second.size();j++){
+        if(dis>abs(fset[i].second[j].x-cenx)+abs(fset[i].second[j].y-ceny)){
+          dis=abs(fset[i].second[j].x-cenx)+abs(fset[i].second[j].y-ceny);
+          mpos=j;
+        }
+      }
+      fset[i].second.erase(fset[i].second.begin()+mpos);
+    }
+    if(maxllr!=-1){
+      candidate_circles.push_back(maxC);
+    }
   }
+  return candidate_circles;
 }
 int main()
 {
@@ -193,7 +245,7 @@ int main()
     // DATA SET OF TAXI
     //EXTRACT ONLY LOCATIONS
     // FINDING AREA OF SPACE AND NUMBER OF POINTS ON PLANE
-    vector<coord> points;
+    vector<coord> points;//dataset
     remove_negetive(points);
     pair<int,int> p=getplanearea(points);
     areaS=p.first;//plane area
@@ -201,14 +253,14 @@ int main()
     modP=points.sz;//no of points on plane
 
     //GRID VARIABLES
-    int lcell=rmin/2;
+    double lcell=rmin/2;
     int N=sidelength/lcell;
     int total_countGrid_cells=N*N;
     total_cubicGrid_cells=N*N*N;
 
     //3 PHASES
     vector<pair<pair<int,int>,vector<coord> > > fset= Filter_Phase(points,thetha);
-    Refine_Phase(fset,thetha);
+    vector<circles> candidate_circles=Refine_Phase(fset,thetha,rmin);
     Monte_Carlo_Phase();
 
     return 0;
