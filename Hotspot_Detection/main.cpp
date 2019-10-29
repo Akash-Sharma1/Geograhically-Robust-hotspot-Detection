@@ -233,6 +233,57 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
   }
   return candidate_circles;
 }
+
+double rand_double() {
+   return rand()/(double)RAND_MAX;
+}
+int getPoissonRandom(int u)
+{
+  double L=exp((-1)*u);
+  double p = 1.0;
+  int k = 0;
+
+  do {
+    //cout<<"1"<<endl;
+    k++;
+    p *= rand_double();
+  } while (p > L);
+
+  return k - 1;
+}
+
+void generatemontecarlo(int m,double montecarlo[5000],double areaS)
+{
+    double rmin=0.5;
+    int u=10;
+    int i,j;
+
+    for(i=0;i<m;i++)
+    {
+        vector< pair<double,double > > cord;
+        cout<<"New dataset"<<endl;
+        for(j=0;j<60;j++)
+        {
+            double lat=fmod(rand(),ldiff);
+            double lon=fmod(rand(),bdiff);
+            cord.push_back({lat,lon});
+            cout<<lat<<" "<<lon<<endl;
+        }
+        vector< Circle > circle=getCircles(cord,rmin);
+        double maxll=-999;
+        for(j=0;j<circle.size();j++)
+        {
+            double ll=logLikelihood(cord,circle[j],areaS);
+
+            if(ll>maxll)
+                maxll=ll;
+        }
+        //cout<<maxll<<endl;
+        montecarlo[i]=maxll;
+
+    }
+}
+
 int main()
 {
     //INPUTS
