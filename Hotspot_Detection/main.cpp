@@ -55,14 +55,48 @@ struct countGrid_Cell{
       this->cell_count=cellcount;
     }
 };
+countGrid_Cell grid[N][N];
 ////////////////////////////////////////////// MECC MFCC LLR /////////////////////////////////
-vector<coord>  MECC(double x,double y, int radius,vector<coord> &p){
-  // return points in mecc
 
+bool liesincircle(double a,double b,int r,coord p){
+  // (x-a)2+(y-b)2=r2
+  double rd=(p.x-a)*(p.x-a)+(p.y-b)*(p.y-b);
+  return rd<=r;
 }
-vector<coord>  MFCC(double x,double y, int radius,vector<coord> &p){
-  // return center gridcoord , radius and noof points in mecc circle
+vector<coord>  MECC(double x,double y, int radius,vector<coord> &p){
+  vector<coord> meccpoints;
+  for(int m=0;m<p.size();m++){
+    int i=p[m].x/lcell;
+    int j=p[m].y/lcell;
 
+    coord a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
+    coord b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
+    coord c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
+    coord d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
+
+    if(lieincircle(x,y,radius,a) || lieincircle(x,y,radius,b) || lieincircle(x,y,radius,c) || lieincircle(x,y,radius,d)){
+      meccpoints.push_back(p[m]);
+    }
+  }
+  return meccpoints;
+}
+
+vector<coord>  MFCC(double x,double y, int radius,vector<coord> &p){
+  vector<coord> mfccpoints;
+  for(int m=0;m<p.size();m++){
+    int i=p[m].x/lcell;
+    int j=p[m].y/lcell;
+
+    coord a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
+    coord b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
+    coord c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
+    coord d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
+
+    if(lieincircle(x,y,radius,a) && lieincircle(x,y,radius,b) && lieincircle(x,y,radius,c) && lieincircle(x,y,radius,d)){
+      mfccpoints.push_back(p[m]);
+    }
+  }
+  return mfccpoints;
 }
 double log_LRGrid_Upperbound(double areaMecc,double areaMfcc,int nMecc,int nMfcc){
   int uc=nMecc;
@@ -86,14 +120,6 @@ double log_LRGrid_Upperbound(double areaMecc,double areaMfcc,int nMecc,int nMfcc
   return log(a*b);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
-bool liesincircle(double a,double b,int r,coord p){
-  // (x-a)2+(y-b)2=r2
-  double rd=(p.x-a)*(p.x-a)+(p.y-b)*(p.y-b);
-  return rd<=r;
-}
-
-countGrid_Cell grid[N][N];
-
 vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int thetha){
   for(int i=0;i<pos.size();i++){
     int x=pos[i].x/lcell;
