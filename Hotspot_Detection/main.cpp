@@ -211,7 +211,7 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
     int r=inf;
     //kuch to chod h
     double cenx=(grid[i][j].Xmin+grid[i][j].Xmax)/2;
-    double ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
+    double ceny=(grid[i][j].Ymin+grid[i][j].Ym  ax)/2;
     circle maxC;
     double maxllr=-1;
     
