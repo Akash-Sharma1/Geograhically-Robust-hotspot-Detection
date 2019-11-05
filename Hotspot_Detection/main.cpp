@@ -5,6 +5,7 @@ const int inf=1e9;
 #define PI 3.14159
 
 //////////////////////////////////////// COORDINATES ///////////////////////
+
 struct coord{
     double x,y;
     coord(double a,double b){
@@ -43,8 +44,10 @@ pair<int,int> getplanearea(vector<coord> &pos){
 }
 
 /////////////////////////////////////////////////////// COUNT GRID ////////////////////////////////////
+
 int modP,areaS,sidelength;
 int lcell,N,total_countGrid_cells,total_cubicGrid_cells;
+
 // A SINGLE CELL CELLCOUNT NUMBER OF POINTS FROM XMIN TO XMAX, YMIN TO YMAX IN A SINGLE CELL
 struct countGrid_Cell{
     doubel Xmin,Xmax,Ymin,Ymax;
@@ -135,7 +138,13 @@ class circle{
 public:
   double x,y,radius;
   int noofpoints;
-  double logLikelihood_circle(double areaS,int modP){
+  /* 
+    there's a confusion in this
+    do we have to take areaS and modP respect to all dataset(all points)
+    or we should take the minimized filtered set
+    we are going with global ones. 
+  */
+  double logLikelihood_circle(){
       double areaCircle=3.14*radius*radius;
       double B=(areaCircle/areaS)*modP;
       int C=noofpoints;
@@ -186,8 +195,13 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
           int nMfecc=cirmecc.size();
           int nMfcc=cirmfcc.size();
           
-          // if we take area as area of circle double areaMecc=PI*r*r;
-          //if we take area as area of circle double areaMfcc=PI*r*r;
+          /* 
+              here there's a confusion do we have to take the area of mecc as the area of mecc circle 
+              or the area of the grid colloection formaed by mecc squares.
+              here we are going with the area that is made up by the grip squares.
+              if we take area as area of circle double areaMecc=PI*r*r;
+              if we take area as area of circle double areaMfcc=PI*r*r; 
+          */
 
           double llr=log_LRGrid_Upperbound(nMecc,nMfcc,areaMecc,areaMfcc);
           if(llr>=thetha && llr>maxLLR){
@@ -235,7 +249,7 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
       C=SEC(fset[i].second,0,{});
       if(lieincell(cellcenter,C.x,C.y) && C.radius>=rmin){
         r=C.radius;
-        double llr=C.logLikelihood_circle();//parameters yet to be defined
+        double llr=C.logLikelihood_circle();
         if(maxllr<llr){
           maxllr=llr;
           maxC=C;
@@ -249,7 +263,7 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
           mpos=j;
         }
       }
-  //erase takes n
+      //erase takes n
       fset[i].second.erase(fset[i].second.begin()+mpos);
     }
     if(maxllr!=-1){
