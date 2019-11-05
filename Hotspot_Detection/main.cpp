@@ -193,7 +193,9 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
   return filtered_set;
 }
 // This is diffrent from mecc
-circle find_smallest_enclosing_circle(){
+circle SEC(vector<coord> p, int i,vector<coord>r){
+  if(p.empty() || r.size()==3)return directcircle(r);
+  
 
 }
 vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,int thetha,int rmin){
@@ -208,7 +210,7 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
     
     while(fset[i].second.size()!=0 && r>=rmin){
       circle C=new circle;
-      C=find_smallest_enclosing_circle();
+      C=SEC(fset[i].second,0,{});
       if(lieincell(cellcenter,C.x,C.y) && C.radius>=rmin){
         r=C.radius;
         double llr=C.logLikelihood_circle();//parameters yet to be defined
