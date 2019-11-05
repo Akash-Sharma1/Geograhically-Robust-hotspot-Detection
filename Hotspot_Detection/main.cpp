@@ -134,6 +134,8 @@ double log_LRGrid_Upperbound(double areaMecc,double areaMfcc,int nMecc,int nMfcc
   }
   return log(a*b);
 }
+
+
 class circle{
 public:
   double x,y,radius;
@@ -196,11 +198,11 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
           int nMfcc=cirmfcc.size();
           
           /* 
-              here there's a confusion do we have to take the area of mecc as the area of mecc circle 
-              or the area of the grid colloection formaed by mecc squares.
-              here we are going with the area that is made up by the grip squares.
-              if we take area as area of circle double areaMecc=PI*r*r;
-              if we take area as area of circle double areaMfcc=PI*r*r; 
+            here there's a confusion do we have to take the area of mecc as the area of mecc circle 
+            or the area of the grid colloection formaed by mecc squares.
+            here we are going with the area that is made up by the grip squares.
+            if we take area as area of circle double areaMecc=PI*r*r;
+            if we take area as area of circle double areaMfcc=PI*r*r; 
           */
 
           double llr=log_LRGrid_Upperbound(nMecc,nMfcc,areaMecc,areaMfcc);
@@ -227,12 +229,47 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
   }
   return filtered_set;
 }
-// This is diffrent from mecc
-circle SEC(vector<coord> p, int i,vector<coord>r){
-  if(p.empty() || r.size()==3)return directcircle(r);
 
+// This is diffrent from minimum enclosing circle /////////////////////////////////////////////////////////////////
 
+circle b_md(vector<coord> R) {
+	if (R.size() == 0) {
+		return circle(0, 0, -1);
+	} else if (R.size() == 1) {
+		return circle(R[0].x, R[0].y, 0);
+	} else if (R.size() == 2) {
+		return circle((R[0].x+R[1].x)/2.0,
+		              (R[0].y+R[1].y)/2.0,
+					  abs(R[0].x-R[1].x, R[0].y-R[1].y)/2.0);
+	} else {
+		double D = (R[0].x - R[2].x)*(R[1].y - R[2].y) - (R[1].x - R[2].x)*(R[0].y - R[2].y);
+		double p0 = (((R[0].x - R[2].x)*(R[0].x + R[2].x) + (R[0].y - R[2].y)*(R[0].y + R[2].y)) / 2 * (R[1].y - R[2].y) - ((R[1].x - R[2].x)*(R[1].x + R[2].x) + (R[1].y - R[2].y)*(R[1].y + R[2].y)) / 2 * (R[0].y - R[2].y))/D;
+		double p1 = (((R[1].x - R[2].x)*(R[1].x + R[2].x) + (R[1].y - R[2].y)*(R[1].y + R[2].y)) / 2 * (R[0].x - R[2].x) - ((R[0].x - R[2].x)*(R[0].x + R[2].x) + (R[0].y - R[2].y)*(R[0].y + R[2].y)) / 2 * (R[1].x - R[2].x))/D;
+		return circle(p0, p1, abs(R[0].x - p0, R[0].y - p1));
+	}
 }
+
+circle b_minidisk(vector<coord>& P, int i, vector<coord> R) {
+
+	if (i == P.size() || R.size() == 3) {
+		return b_md(R);
+	} else {
+		circle D = b_minidisk(P, i+1, R);
+		if (abs(P[i].x-D.x, P[i].y-D.y) > D.r) {
+			R.push_back(P[i]);
+			D = b_minidisk(P, i+1, R);
+		}
+		return D;
+	}
+}
+
+circle SEC(vector<coord> P) {
+	random_shuffle(P.begin(), P.end());
+	return b_minidisk(P, 0, vector<coord>());
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,int thetha,int rmin){
 
   vector<circles> candidate_circles;
@@ -245,8 +282,11 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
     double maxllr=-1;
     
     while(fset[i].second.size()!=0 && r>=rmin){
+      
       circle C=new circle;
       C=SEC(fset[i].second,0,{});
+      C.noofpoints=fset[i].second.size();
+
       if(lieincell(cellcenter,C.x,C.y) && C.radius>=rmin){
         r=C.radius;
         double llr=C.logLikelihood_circle();
