@@ -63,7 +63,7 @@ countGrid_Cell grid[N][N];
 bool liesincircle(double a,double b,int r,coord p){
   // (x-a)2+(y-b)2=r2
   double rd=(p.x-a)*(p.x-a)+(p.y-b)*(p.y-b);
-  return rd<=r;
+  return rd<=r*r;
 }
 vector<coord>  MECC(double x,double y, int radius,vector<coord> &p){
   vector<coord> meccpoints;
@@ -80,6 +80,7 @@ vector<coord>  MECC(double x,double y, int radius,vector<coord> &p){
       meccpoints.push_back(p[m]);
     }
   }
+  //area to be calculated
   return meccpoints;
 }
 
@@ -98,6 +99,7 @@ vector<coord>  MFCC(double x,double y, int radius,vector<coord> &p){
       mfccpoints.push_back(p[m]);
     }
   }
+  //area to be calculated
   return mfccpoints;
 }
 double log_LRGrid_Upperbound(double areaMecc,double areaMfcc,int nMecc,int nMfcc){
@@ -165,13 +167,16 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
           double ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
           vector<coord> cirmecc=MECC(cenx,ceny,r,pos);
           int nMecc=cirmfcc.size();
+          //area to be chaged
           double areaMecc=PI*r*r;
           vector<coord> cirmfcc=MFCC(cenx,ceny,r,pos);
           int nMfcc=cirmfcc.size();
+          //area to be chaged
           double areaMfcc=PI*r*r;
           double llr=log_LRGrid_Upperbound(nMecc,nMfcc,areaMecc,areaMfcc);
           if(llr>=thetha && llr>maxLLR){
               maxLLr=llr;
+          //to be chaged x and y
               maxxX=cenx;maxxY=ceny;maxxR=r;xx=x;yy=y;
           }
         }
@@ -182,6 +187,7 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
       for(int i=0;i<pos.size();i++){
         if(liesincircle(maxxX,maxxY,maxxR,pos[i])){
           filtered_set[sett].push_back(pos[i]);
+          //erase takes n to be hcanged
           pos.erase(pos.begin()+i);
           i--;
         }
@@ -195,7 +201,7 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
 // This is diffrent from mecc
 circle SEC(vector<coord> p, int i,vector<coord>r){
   if(p.empty() || r.size()==3)return directcircle(r);
-  
+
 
 }
 vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,int thetha,int rmin){
@@ -203,6 +209,7 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
   for(int i=0;i<fset.size();i++){
     pair<int,int> cellcenter=fset[i].first;
     int r=inf;
+    //kuch to chod h
     double cenx=(grid[i][j].Xmin+grid[i][j].Xmax)/2;
     double ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
     circle maxC;
@@ -227,6 +234,7 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
           mpos=j;
         }
       }
+  //erase takes n
       fset[i].second.erase(fset[i].second.begin()+mpos);
     }
     if(maxllr!=-1){
@@ -239,6 +247,7 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
 double rand_double() {
    return rand()/(double)RAND_MAX;
 }
+
 int getPoissonRandom(int u)
 {
   double L=exp((-1)*u);
@@ -306,6 +315,8 @@ int main()
     modP=points.sz;//no of points on plane
 
     //GRID VARIABLES
+    
+          //ceil to be chaged
     double lcell=rmin/2;
     int N=sidelength/lcell;
     int total_countGrid_cells=N*N;
