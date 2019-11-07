@@ -10,3 +10,7 @@ s=s.decode("utf-8")
 s=s.split()
 print(type(s))
 print(s) 
+
+## stastical meathod for factor analysis
+#factor reduciton
+#factor selection

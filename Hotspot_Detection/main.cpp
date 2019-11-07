@@ -3,7 +3,6 @@ using namespace std;
 double power(double x, unsigned int y){double res = 1;while (y > 0){ if (y & 1){res = res*x;} y = y>>1;x = x*x;}return res;}
 const int inf=1e9;
 #define PI 3.14159
-
 //////////////////////////////////////// COORDINATES ///////////////////////
 
 struct coord{
@@ -24,7 +23,7 @@ int find_bottom_left(vector<coord> &pos){
 }
 double scalefactor;
 void remove_negetive(vector<coord> &pos){
-    scalefactor=find_bottom_left();
+    scalefactor=find_bottom_left(pos);
     for(int i=0;i<pos.size();i++){
         pos[i].x-=scalefactor;
         pos[i].y-=scalefactor;
@@ -32,14 +31,16 @@ void remove_negetive(vector<coord> &pos){
 }
 
 pair<int,int> getplanearea(vector<coord> &pos){
-  int xmin,xmax,ymin,ymax;
+  double xmin,xmax,ymin,ymax;
   for(int i=0;i<pos.size();i++){
     xmin=min(xmin,pos[i].x);
     ymin=min(ymin,pos[i].y);
     xmax=min(xmax,pos[i].x);
     ymax=min(ymax,pos[i].y);
   }
-  int edge=max(abs(xmax-xmin),abs(ymax,ymin));
+  int a=xmax-xmin;
+  int b=ymax-ymin;
+  int edge=max(abs(a),abs(b));
   return {edge*edge,edge};
 }
 
@@ -50,22 +51,18 @@ int lcell,N,total_countGrid_cells,total_cubicGrid_cells;
 
 // A SINGLE CELL CELLCOUNT NUMBER OF POINTS FROM XMIN TO XMAX, YMIN TO YMAX IN A SINGLE CELL
 struct countGrid_Cell{
-    doubel Xmin,Xmax,Ymin,Ymax;
+    double Xmin,Xmax,Ymin,Ymax;
     int cell_count;
-    countGrid_Cell(double Xmin,double Xmax,double Ymin,double Xmax,int cellcount){
-      this->Xmin=Xmin;
-      this->Xmax=Xmax;
-      this->Ymin=Ymin;
-      this->Ymax=Ymax;
-      this->cell_count=cellcount;
-    }
 };
-countGrid_Cell grid[N][N];
+
+// needed to specify a limit to the count grid
+
+countGrid_Cell grid[5000][5000];
 ////////////////////////////////////////////// MECC MFCC LLR /////////////////////////////////
 
-bool liesincircle(double a,double b,int r,coord p){
+bool lieincircle(double a,double b,int r,const coord *p){
   // (x-a)2+(y-b)2=r2
-  double rd=(p.x-a)*(p.x-a)+(p.y-b)*(p.y-b);
+  double rd=(p->x-a)*(p->x-a)+(p->y-b)*(p->y-b);
   return rd<=r*r;
 }
 pair<double,vector<coord> > MECC(double x,double y, int radius,vector<coord> &p){
@@ -77,10 +74,10 @@ pair<double,vector<coord> > MECC(double x,double y, int radius,vector<coord> &p)
 
     mp[{i,j}]++;
 
-    coord a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
-    coord b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
-    coord c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
-    coord d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
+    coord *a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
+    coord *b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
+    coord *c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
+    coord *d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
 
     if(lieincircle(x,y,radius,a) || lieincircle(x,y,radius,b) || lieincircle(x,y,radius,c) || lieincircle(x,y,radius,d)){
       meccpoints.push_back(p[m]);
@@ -100,10 +97,10 @@ pair<double,vector<coord> >  MFCC(double x,double y, int radius,vector<coord> &p
 
     mp[{i,j}]++;
 
-    coord a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
-    coord b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
-    coord c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
-    coord d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
+    coord *a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
+    coord *b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
+    coord *c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
+    coord *d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
 
     if(lieincircle(x,y,radius,a) && lieincircle(x,y,radius,b) && lieincircle(x,y,radius,c) && lieincircle(x,y,radius,d)){
       mfccpoints.push_back(p[m]);
@@ -126,8 +123,8 @@ double log_LRGrid_Upperbound(double areaMecc,double areaMfcc,int nMecc,int nMfcc
   double b;
   if(lc>=ub){
     b=modP-lc;
-    b/=(modp-ub);
-    b=power(b,(modp-uc) );
+    b/=(modP-ub);
+    b=power(b,(modP-uc) );
   }
   else{
     b=1;
@@ -136,15 +133,20 @@ double log_LRGrid_Upperbound(double areaMecc,double areaMfcc,int nMecc,int nMfcc
 }
 
 
-class circle{
+class Circle{
 public:
   double x,y,radius;
   int noofpoints;
-  /* 
+  Circle(double x,double y,double radius){
+    this->x=x;
+    this->y=y;
+    this->radius=radius;
+  }
+  /*
     there's a confusion in this
     do we have to take areaS and modP respect to all dataset(all points)
     or we should take the minimized filtered set
-    we are going with global ones. 
+    we are going with global ones.
   */
   double logLikelihood_circle(){
       double areaCircle=3.14*radius*radius;
@@ -155,11 +157,11 @@ public:
       a=power(a,C);
       double b=(modP-C)/(modP-B);
       b=power(b,(modP-C));
-      return log(a*b*I);
+      return log(a*b);
   }
 };
 /////////////////////////////////////////////////////// PHASES //////////////////////////////////////////////////////////
-vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int thetha){
+vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> pos,int thetha){
   for(int i=0;i<pos.size();i++){
     int x=pos[i].x/lcell;
     int y=pos[i].y/lcell;
@@ -190,24 +192,24 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
           pair<double,vector<coord> > p1=MECC(cenx,ceny,r,pos);
           pair<double,vector<coord> > p2=MFCC(cenx,ceny,r,pos);
 
-          areamecc=p1.first;
-          areamfcc=p2.first;
+          areaMecc=p1.first;
+          areaMfcc=p2.first;
           cirmecc=p1.second;
           cirmfcc=p2.second;
-          int nMfecc=cirmecc.size();
+          int nMecc=cirmecc.size();
           int nMfcc=cirmfcc.size();
-          
-          /* 
-            here there's a confusion do we have to take the area of mecc as the area of mecc circle 
+
+          /*
+            here there's a confusion do we have to take the area of mecc as the area of mecc circle
             or the area of the grid colloection formaed by mecc squares.
             here we are going with the area that is made up by the grip squares.
             if we take area as area of circle double areaMecc=PI*r*r;
-            if we take area as area of circle double areaMfcc=PI*r*r; 
+            if we take area as area of circle double areaMfcc=PI*r*r;
           */
 
           double llr=log_LRGrid_Upperbound(nMecc,nMfcc,areaMecc,areaMfcc);
-          if(llr>=thetha && llr>maxLLR){
-              maxLLr=llr;
+          if(llr>=thetha && llr>maxxLLR){
+              maxxLLR=llr;
               maxxX=cenx;maxxY=ceny;maxxR=r;xx=i;yy=j;
           }
         }
@@ -216,14 +218,14 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
     if(maxxLLR!=-1){
       filtered_set.push_back({{xx,yy},{}});
       for(int i=0;i<pos.size();i++){
-        if(liesincircle(maxxX,maxxY,maxxR,pos[i])){
-          filtered_set[sett].push_back(pos[i]);
+        if(lieincircle(maxxX,maxxY,maxxR,&pos[i])){
+          filtered_set[sett].second.push_back(pos[i]);
           //erase takes n to be hcanged
           pos.erase(pos.begin()+i);
           i--;
         }
       }
-      ++set;
+      ++sett;
     }
 
   }
@@ -232,62 +234,63 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<int> pos,int the
 
 // This is diffrent from minimum enclosing circle /////////////////////////////////////////////////////////////////
 
-circle b_md(vector<coord> R) {
-	if (R.size() == 0) {
-		return circle(0, 0, -1);
-	} else if (R.size() == 1) {
-		return circle(R[0].x, R[0].y, 0);
-	} else if (R.size() == 2) {
-		return circle((R[0].x+R[1].x)/2.0,
-		              (R[0].y+R[1].y)/2.0,
-					  abs(R[0].x-R[1].x, R[0].y-R[1].y)/2.0);
-	} else {
-		double D = (R[0].x - R[2].x)*(R[1].y - R[2].y) - (R[1].x - R[2].x)*(R[0].y - R[2].y);
-		double p0 = (((R[0].x - R[2].x)*(R[0].x + R[2].x) + (R[0].y - R[2].y)*(R[0].y + R[2].y)) / 2 * (R[1].y - R[2].y) - ((R[1].x - R[2].x)*(R[1].x + R[2].x) + (R[1].y - R[2].y)*(R[1].y + R[2].y)) / 2 * (R[0].y - R[2].y))/D;
-		double p1 = (((R[1].x - R[2].x)*(R[1].x + R[2].x) + (R[1].y - R[2].y)*(R[1].y + R[2].y)) / 2 * (R[0].x - R[2].x) - ((R[0].x - R[2].x)*(R[0].x + R[2].x) + (R[0].y - R[2].y)*(R[0].y + R[2].y)) / 2 * (R[1].x - R[2].x))/D;
-		return circle(p0, p1, abs(R[0].x - p0, R[0].y - p1));
-	}
+Circle b_md(vector<coord> R) {
+    if (R.size() == 0) {
+        return Circle(0, 0, -1);
+    } else if (R.size() == 1) {
+        return Circle(R[0].x, R[0].y, 0);
+    } else if (R.size() == 2) {
+        return Circle((R[0].x+R[1].x)/2.0,
+                 (R[0].y+R[1].y)/2.0,
+            abs(R[0].x-R[1].x+R[0].y-R[1].y)/2.0);
+    } else {
+        double D = (R[0].x - R[2].x)*(R[1].y - R[2].y) - (R[1].x - R[2].x)*(R[0].y - R[2].y);
+        double p0 = (((R[0].x - R[2].x)*(R[0].x + R[2].x) + (R[0].y - R[2].y)*(R[0].y + R[2].y)) / 2 * (R[1].y - R[2].y) - ((R[1].x - R[2].x)*(R[1].x + R[2].x) + (R[1].y - R[2].y)*(R[1].y + R[2].y)) / 2 * (R[0].y - R[2].y))/D;
+        double p1 = (((R[1].x - R[2].x)*(R[1].x + R[2].x) + (R[1].y - R[2].y)*(R[1].y + R[2].y)) / 2 * (R[0].x - R[2].x) - ((R[0].x - R[2].x)*(R[0].x + R[2].x) + (R[0].y - R[2].y)*(R[0].y + R[2].y)) / 2 * (R[1].x - R[2].x))/D;
+        return Circle(p0, p1, abs(R[0].x - p0+R[0].y - p1) );
+    }
 }
 
-circle b_minidisk(vector<coord>& P, int i, vector<coord> R) {
-
-	if (i == P.size() || R.size() == 3) {
-		return b_md(R);
-	} else {
-		circle D = b_minidisk(P, i+1, R);
-		if (abs(P[i].x-D.x, P[i].y-D.y) > D.r) {
-			R.push_back(P[i]);
-			D = b_minidisk(P, i+1, R);
-		}
-		return D;
-	}
+Circle b_minidisk(vector<coord>& P, int i, vector<coord> R) {
+    if (i == P.size() || R.size() == 3) {
+        return b_md(R);
+    }
+    else {
+        Circle D = b_minidisk(P, i+1, R);
+        if (abs(P[i].x-D.x+P[i].y-D.y) > D.radius) {
+            R.push_back(P[i]);
+            D = b_minidisk(P, i+1, R);
+        }
+        return D;
+    }
 }
 
-circle SEC(vector<coord> P) {
-	random_shuffle(P.begin(), P.end());
-	return b_minidisk(P, 0, vector<coord>());
+Circle SEC(vector<coord> P) {
+    random_shuffle(P.begin(), P.end());
+    return b_minidisk(P, 0, vector<coord>());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+bool is_pointliesincell(pair<int,int> c,double x,double y){
+    return (c.first/lcell==x && c.second/lcell==y);
+}
+vector<pair<Circle,double> > Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,int thetha,int rmin){
 
-vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,int thetha,int rmin){
-
-  vector<circles> candidate_circles;
+  vector<pair<Circle,double> > candidate_circles;
   for(int i=0;i<fset.size();i++){
     pair<int,int> cellcenter=fset[i].first;
     int r=inf;
-    double cenx=(grid[cellcenter.x][cellcenter.y].Xmin+grid[cellcenter.x][cellcenter.y].Xmax)/2;
-    double ceny=(grid[cellcenter.x][cellcenter.y].Ymin+grid[cellcenter.x][cellcenter.y].Ymax)/2;
-    circle maxC;
+    double cenx=(grid[cellcenter.first][cellcenter.second].Xmin+grid[cellcenter.first][cellcenter.second].Xmax)/2;
+    double ceny=(grid[cellcenter.first][cellcenter.second].Ymin+grid[cellcenter.first][cellcenter.second].Ymax)/2;
+    Circle maxC(0,0,0);
     double maxllr=-1;
-    
+
     while(fset[i].second.size()!=0 && r>=rmin){
-      
-      circle C=new circle;
-      C=SEC(fset[i].second,0,{});
+
+      Circle C=SEC(fset[i].second);
       C.noofpoints=fset[i].second.size();
 
-      if(lieincell(cellcenter,C.x,C.y) && C.radius>=rmin){
+      if(is_pointliesincell(cellcenter,C.x,C.y) && C.radius>=rmin){
         r=C.radius;
         double llr=C.logLikelihood_circle();
         if(maxllr<llr){
@@ -307,7 +310,7 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
       fset[i].second.erase(fset[i].second.begin()+mpos);
     }
     if(maxllr!=-1){
-      candidate_circles.push_back(maxC);
+      candidate_circles.push_back({maxC,maxllr});
     }
   }
   return candidate_circles;
@@ -316,7 +319,7 @@ vector<circles> Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,in
 double rand_double() {
    return rand()/(double)RAND_MAX;
 }
-
+/*
 int getPoissonRandom(int u)
 {
   double L=exp((-1)*u);
@@ -331,36 +334,31 @@ int getPoissonRandom(int u)
 
   return k - 1;
 }
-
-void generatemontecarlo(int m,double montecarlo[5000],double areaS)
+*/
+void generatemontecarlo(int m,double montecarlo[],double areaS,double rmin,double thetha)
 {
-    double rmin=0.5;
     int u=10;
     int i,j;
 
     for(i=0;i<m;i++)
     {
-        vector< pair<double,double > > cord;
-        cout<<"New dataset"<<endl;
-        for(j=0;j<60;j++)
+        vector<coord> crd;
+        for(j=0;j<100;j++)
         {
-            double lat=fmod(rand(),ldiff);
-            double lon=fmod(rand(),bdiff);
-            cord.push_back({lat,lon});
-            cout<<lat<<" "<<lon<<endl;
+            double lat=fmod(rand(),sidelength);
+            double lon=fmod(rand(),sidelength);
+            crd.push_back({lat,lon});
+            //cout<<lat<<" "<<lon<<endl;
         }
-        vector< Circle > circle=getCircles(cord,rmin);
-        double maxll=-999;
-        for(j=0;j<circle.size();j++)
-        {
-            double ll=logLikelihood(cord,circle[j],areaS);
+        vector<pair<pair<int,int>,vector<coord> > > fset= Filter_Phase(crd,thetha);
+        vector<pair<Circle,double> > Ctemp=Refine_Phase(fset,thetha,rmin);
 
-            if(ll>maxll)
-                maxll=ll;
+        double maxll=-inf;
+        for(j=0;j<Ctemp.size();j++){
+            if(Ctemp[i].second>maxll)
+                maxll=Ctemp[i].second;
         }
-        //cout<<maxll<<endl;
         montecarlo[i]=maxll;
-
     }
 }
 
@@ -368,11 +366,11 @@ int main()
 {
     //INPUTS
     double thetha,rmin,alphaP;
-    int mSim_m;
+    int msim;
     thetha=0;
-    rimn=2;
+    rmin=2;
     alphaP=0.1;
-    msim_m=5;
+    msim=5;
 
     // DATA SET OF TAXI
     //EXTRACT ONLY LOCATIONS
@@ -382,10 +380,10 @@ int main()
     pair<int,int> p=getplanearea(points);
     areaS=p.first;//plane area
     sidelength=p.second;//plane side
-    modP=points.sz;//no of points on plane
+    modP=points.size();//no of points on plane
 
     //GRID VARIABLES
-    
+
     //ceil to be chaged
     double lcell=ceil(rmin/2);
     int N=sidelength/lcell;
@@ -394,8 +392,36 @@ int main()
 
     //3 PHASES
     vector<pair<pair<int,int>,vector<coord> > > fset= Filter_Phase(points,thetha);
-    vector<circles> candidate_circles=Refine_Phase(fset,thetha,rmin);
-    Monte_Carlo_Phase();
+    // circles logirithmic value
+    vector<pair<Circle,double> > candidate_circles=Refine_Phase(fset,thetha,rmin);
 
+    srand(time(NULL));
+
+    double montecarlo[msim];
+    for(int i=0;i<msim;i++)
+        montecarlo[i]=0;
+
+    generatemontecarlo(msim,montecarlo,areaS,rmin,thetha);
+
+    sort(montecarlo,montecarlo+msim,greater<double>());
+
+    vector<Circle> hotspotCircles;
+    for(int i=0;i<candidate_circles.size();i++){
+        // will use binary search to search position of log in the array but
+        // for the time being but here we are brute forcing to get solution
+        for(int j=0;j<msim;j++){
+            if(candidate_circles[i].second>montecarlo[j]){
+                double pval=((double)j)/((double)msim+1);
+                if(pval<=alphaP){
+                    hotspotCircles.push_back(candidate_circles[i].first);
+                }
+                break;
+            }
+        }
+    }
+
+    for(int i=0;i<hotspotCircles.size();i++){
+        cout<< hotspotCircles[i].x<<" "<<hotspotCircles[i].y<<" "<<hotspotCircles[i].radius<<endl;
+    }
     return 0;
 }
