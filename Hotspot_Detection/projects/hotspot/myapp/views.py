@@ -14,7 +14,7 @@ def draw(request):
     import os 
     import csv
 
-    w= open("inputgen.txt","w+")
+    w= open(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\static\myapp\inputgen.txt","w+")
     ss=str(Coordinates.objects.all().count())+"\n"
     w.write(ss)
     for i in Coordinates.objects.all():
@@ -46,12 +46,8 @@ def draw(request):
     c=0
     temp= []
     for data in list:
-        if c%3==0:
-            temp.append(data)
-        elif c%3==1:
-            temp.append(data)
-        elif c%3==2:
-            temp.append(data)
+        temp.append(data)
+        if c%3==2:
             value.append(temp)
             temp = []
         c += 1
