@@ -72,130 +72,79 @@ struct countGrid_Cell{
 countGrid_Cell grid[5000][5000];
 
 ////////////////////////////////////////////// MECC MFCC LLR /////////////////////////////////
+
 bool lieincircle(long double  a,long double  b,long r,const coord *p){
   // (x-a)2+(y-b)2=r2
   long double  rd=(p->x-a)*(p->x-a)+(p->y-b)*(p->y-b);
   return rd<=r*r;
 }
-//pair<double,long> MECC(long double  x,long double  y, long radius,vector<coord> &p){
-//  long meccpoints=0;
-//  map<pair<int,int>, int> mp;
-//  for(long m=0;m<p.size();m++){
-//    long i=p[m].x/lcell;
-//    long j=p[m].y/lcell;
-//
-//    mp[{i,j}]++;
-//
-//    coord *a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
-//    coord *b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
-//    coord *c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
-//    coord *d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
-//
-//    if(lieincircle(x,y,radius,a) || lieincircle(x,y,radius,b) || lieincircle(x,y,radius,c) || lieincircle(x,y,radius,d)){
-//      meccpoints++;
-//    }
-//  }
-//
-//  long double  area=lcell*lcell*mp.size();
-//  return {area,meccpoints};
-//}
-//
-//pair<double,long>  MFCC(long double  x,long double  y, long radius,vector<coord> &p){
-//  map<pair<int,int>, int> mp;
-//  long mfccpoints=0;
-//  for(long m=0;m<p.size();m++){
-//    long i=p[m].x/lcell;
-//    long j=p[m].y/lcell;
-//
-//    mp[{i,j}]++;
-//
-//    coord *a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
-//    coord *b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
-//    coord *c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
-//    coord *d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
-//
-//    if(lieincircle(x,y,radius,a) && lieincircle(x,y,radius,b) && lieincircle(x,y,radius,c) && lieincircle(x,y,radius,d)){
-//      mfccpoints++;
-//    }
-//  }
-//
-//  long double  area=lcell*lcell*mp.size();
-//  return {area,mfccpoints};
-//}
-bool mecc_checker(long x,long y,long radius,long i,long j){
+
+long checker(long x,long y,long radius,long i,long j,int var){
 
     coord *a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
     coord *b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
     coord *c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
     coord *d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
 
-    if(lieincircle(x,y,radius,a) || lieincircle(x,y,radius,b) || lieincircle(x,y,radius,c) || lieincircle(x,y,radius,d)){
-      return true;
+    if(var==0){
+        while(! (lieincircle(x,y,radius,a) || lieincircle(x,y,radius,b) || lieincircle(x,y,radius,c) || lieincircle(x,y,radius,d)) ){
+          radius++;
+        }
     }
-    return false;
+    else{
+        while(! (lieincircle(x,y,radius,a) && lieincircle(x,y,radius,b) && lieincircle(x,y,radius,c) && lieincircle(x,y,radius,d)) ){
+          radius++;
+        }
+    }
+    return radius;
 }
-pair<double,long> MECC(long x,long y,long radius,vector<coord> &p){
-  long meccpoints=0;
+
+vector< pair<long,long> > MECC_MFCC(long double cx,long double cy,long x,long y,int var){
   map<pair<int,int>, int> mp;
 
   queue<pair<long,long> > q;
   int dx[4]={0,1,-1};
 
+  vector< pair<long,long> > ans(N/2+1);
+  int radius=1;
+
+  checker(cx,cy,radius,x,y,var);
   q.push({x,y});
+  mp[{x,y}]=1;
+  ans[1].second=1;
+  ans[1].first=grid[i][j].cell_count();
+
   while(!q.empty()){
     int i=q.front().first;
     int j=q.front().second;
+
     q.pop();
     for(int xd=0;xd<4;xd++){
         for(int xy=0;xy<4;xy++){
-    if(i+dx[xd]<N && i+dx[xd]>=0 && j+dx[xy]<N && j+dx[xy]>=0 && mp[{i+dx[xd],j+dx[xy]}]==0 && mecc_checker(x,y,radius,i+dx[xd],j+dx[xy]) ){
-                q.push({i+dx[xd],j+dx[xy]});
-                mp[{i+dx[xd],j+dx[xy]}]++;
-                meccpoints++;
-            }
+            i=i+dx[xd];
+            j=j+dx[xy];
+            if( i>=N || i<0 || j>=N || j<0 || mp[{i,j}]>0 )continue;
+
+            radius=checker(cx,cy,radius,i,j,var);
+            if(radius>N/2)continue;
+
+            q.push({i,j});
+            mp[{i,j}]++;
+            ans[radius].second++;
+            ans[radius].first+=grid[i][j].cell_count;
+
         }
     }
   }
-  long double  area=lcell*lcell*mp.size();
-  return {area,meccpoints};
-}
-bool mfcc_checker(long x,long y,long radius,long i,long j){
-    coord *a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
-    coord *b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
-    coord *c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
-    coord *d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
-
-    if(lieincircle(x,y,radius,a) && lieincircle(x,y,radius,b) && lieincircle(x,y,radius,c) && lieincircle(x,y,radius,d)){
-      return true;
-    }
-    return false;
-}
-pair<double,long>  MFCC(long double  x,long double  y, long radius,vector<coord> &p){
-  map<pair<int,int>, int> mp;
-  long mfccpoints=0;
-
-  queue<pair<long,long> > q;
-  int dx[4]={0,1,-1};
-
-  if(mfcc_checker(x,y,radius,x,y));
-    q.push({x,y});
-  while(!q.empty()){
-    int i=q.front().first;
-    int j=q.front().second;
-    q.pop();
-    for(int xd=0;xd<4;xd++){
-        for(int xy=0;xy<4;xy++){
-    if(i+dx[xd]<N && i+dx[xd]>=0 && j+dx[xy]<N && j+dx[xy]>=0 && mp[{i+dx[xd],j+dx[xy]}]==0 && mfcc_checker(x,y,radius,i+dx[xd],j+dx[xy]) ){
-                q.push({i+dx[xd],j+dx[xy]});
-                mp[{i+dx[xd],j+dx[xy]}]++;
-                mfccpoints++;
-            }
-        }
+  for(int i=0;i<ans.size();i++){
+    if(i-1>=0){
+        ans[i].first+=ans[i-1].first;
+        ans[i].second+=ans[i-1].second;
     }
   }
-  long double  area=lcell*lcell*mp.size();
-  return {area,mfccpoints};
+  return ans;
 }
+
 
 long double  log_LRGrid_Upperbound(long double  areaMecc,long double  areaMfcc,long nMecc,long nMfcc){
   long uc=nMecc;
@@ -272,26 +221,18 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> pos,long 
     for(long i=0;i<N;i++){
       for(long j=0;j<N;j++){
         if(grid[i][j].cell_count<10)continue;
+
+        long double  cenx=(grid[i][j].Xmin+grid[i][j].Xmax)/2;
+        long double  ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
+
+        vector<pair<long,long>> p1=MECC_MFCC(i,j,cenx,ceny,0);
+        vector<pair<long,long>> p2=MECC_MFCC(i,j,cenx,ceny,1);
+
         for(long r=1;r<=N/2;r++){
-
-          long double  cenx=(grid[i][j].Xmin+grid[i][j].Xmax)/2;
-          long double  ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
-
-          pair<double,long> p1=MECC(cenx,ceny,r,pos);
-          pair<double,long> p2=MFCC(cenx,ceny,r,pos);
-
-          long double areaMecc=p1.first;
-          long double areaMfcc=p2.first;
-          long nMecc=p1.second;
-          long nMfcc=p2.second;
-
-          /*
-            here there's a confusion do we have to take the area of mecc as the area of mecc circle
-            or the area of the grid colloection formaed by mecc squares.
-            here we are going with the area that is made up by the grip squares.
-            if we take area as area of circle long double  areaMecc=PI*r*r;
-            if we take area as area of circle long double  areaMfcc=PI*r*r;
-          */
+          long double areaMecc=lcell*lcell*p1[i].second;
+          long double areaMfcc=lcell*lcell*p2[i].second;
+          long nMecc=p1[i].first;
+          long nMfcc=p2[i].first;
 
           long double  llr=log_LRGrid_Upperbound(nMecc,nMfcc,areaMecc,areaMfcc);
           if(llr>=thetha && llr>maxxLLR){
