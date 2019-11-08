@@ -3,7 +3,6 @@ using namespace std;
 double power(double x, unsigned int y){double res = 1;while (y > 0){ if (y & 1){res = res*x;} y = y>>1;x = x*x;}return res;}
 const int inf=1e9;
 #define PI 3.14159
-//////////////////////////////////////// COORDINATES ///////////////////////
 
 struct coord{
     double x,y;
@@ -45,7 +44,6 @@ pair<int,int> getplanearea(vector<coord> &pos){
 }
 
 /////////////////////////////////////////////////////// COUNT GRID ////////////////////////////////////
-
 int modP,areaS,sidelength;
 int lcell,N,total_countGrid_cells,total_cubicGrid_cells;
 
@@ -56,10 +54,9 @@ struct countGrid_Cell{
 };
 
 // needed to specify a limit to the count grid
-
 countGrid_Cell grid[5000][5000];
-////////////////////////////////////////////// MECC MFCC LLR /////////////////////////////////
 
+////////////////////////////////////////////// MECC MFCC LLR /////////////////////////////////
 bool lieincircle(double a,double b,int r,const coord *p){
   // (x-a)2+(y-b)2=r2
   double rd=(p->x-a)*(p->x-a)+(p->y-b)*(p->y-b);
@@ -160,6 +157,7 @@ public:
       return log(a*b);
   }
 };
+
 /////////////////////////////////////////////////////// PHASES //////////////////////////////////////////////////////////
 vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> pos,int thetha){
   for(int i=0;i<pos.size();i++){
@@ -232,7 +230,7 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> pos,int t
   return filtered_set;
 }
 
-// This is diffrent from minimum enclosing circle /////////////////////////////////////////////////////////////////
+// This is diffrent from  MECC /////////////////////////////////////////////////////////////////
 
 Circle b_md(vector<coord> R) {
     if (R.size() == 0) {
@@ -270,7 +268,6 @@ Circle SEC(vector<coord> P) {
     return b_minidisk(P, 0, vector<coord>());
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
 bool is_pointliesincell(pair<int,int> c,double x,double y){
     return (c.first/lcell==x && c.second/lcell==y);
 }
@@ -337,9 +334,7 @@ int getPoissonRandom(int u)
 */
 void generatemontecarlo(int m,double montecarlo[],double areaS,double rmin,double thetha)
 {
-    int u=10;
     int i,j;
-
     for(i=0;i<m;i++)
     {
         vector<coord> crd;
@@ -364,11 +359,10 @@ void generatemontecarlo(int m,double montecarlo[],double areaS,double rmin,doubl
 
 int main()
 {
-    //INPUTS
+
     freopen("inputgen.txt","r",stdin);
-    //str(Coordinates.objects.all().count())
     //freopen("outputgen.txt","w",stdout);
-    
+
     double thetha,rmin,alphaP;
     int msim;
     thetha=0;
@@ -376,23 +370,25 @@ int main()
     alphaP=0.1;
     msim=5;
 
-    vector<coord> points;
-    
-    double n;
+    int n;
     cin>>n;
     cout<<n<<endl;
-    
+
     for(int i=0;i<n;i++){
       double x;
       cin>>x;cout<<x<<" ";
+      points[i].x=x;
       cin>>x;cout<<x<<" ";
+      points[i].y=x;
     }
-    return 0;
+
+
     remove_negetive(points);
     pair<int,int> p=getplanearea(points);
     areaS=p.first;
     sidelength=p.second;
     modP=points.size();
+
 
     //ceil to be chaged
     double lcell=ceil(rmin/2);
@@ -402,12 +398,10 @@ int main()
 
     //3 PHASES
     vector<pair<pair<int,int>,vector<coord> > > fset= Filter_Phase(points,thetha);
+    // circles, logirithmic value
     vector<pair<Circle,double> > candidate_circles=Refine_Phase(fset,thetha,rmin);
 
-     // circles , logirithmic value
-
     srand(time(NULL));
-
     double montecarlo[msim];
     for(int i=0;i<msim;i++)
         montecarlo[i]=0;
@@ -429,9 +423,8 @@ int main()
             }
         }
     }
-
     for(int i=0;i<hotspotCircles.size();i++){
-        cout<< hotspotCircles[i].x<<" "<<hotspotCircles[i].y<<" "<<hotspotCircles[i].radius<<" ";
+        cout<< hotspotCircles[i].x<<" "<<hotspotCircles[i].y<<" "<<hotspotCircles[i].radius<<endl;
     }
     return 0;
 }
