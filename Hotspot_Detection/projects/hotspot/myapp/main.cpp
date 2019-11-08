@@ -365,7 +365,10 @@ void generatemontecarlo(int m,double montecarlo[],double areaS,double rmin,doubl
 int main()
 {
     //INPUTS
-    //freopen("input3.txt","w",stdout);
+    freopen("inputgen.txt","r",stdin);
+    //str(Coordinates.objects.all().count())
+    //freopen("outputgen.txt","w",stdout);
+    
     double thetha,rmin,alphaP;
     int msim;
     thetha=0;
@@ -373,17 +376,23 @@ int main()
     alphaP=0.1;
     msim=5;
 
-    // DATA SET OF TAXI
-    //EXTRACT ONLY LOCATIONS
-    // FINDING AREA OF SPACE AND NUMBER OF POINTS ON PLANE
-    vector<coord> points;//dataset
+    vector<coord> points;
+    
+    double n;
+    cin>>n;
+    cout<<n<<endl;
+    
+    for(int i=0;i<n;i++){
+      double x;
+      cin>>x;cout<<x<<" ";
+      cin>>x;cout<<x<<" ";
+    }
+    return 0;
     remove_negetive(points);
     pair<int,int> p=getplanearea(points);
-    areaS=p.first;//plane area
-    sidelength=p.second;//plane side
-    modP=points.size();//no of points on plane
-
-    //GRID VARIABLES
+    areaS=p.first;
+    sidelength=p.second;
+    modP=points.size();
 
     //ceil to be chaged
     double lcell=ceil(rmin/2);
@@ -393,8 +402,9 @@ int main()
 
     //3 PHASES
     vector<pair<pair<int,int>,vector<coord> > > fset= Filter_Phase(points,thetha);
-    // circles logirithmic value
     vector<pair<Circle,double> > candidate_circles=Refine_Phase(fset,thetha,rmin);
+
+     // circles , logirithmic value
 
     srand(time(NULL));
 
@@ -403,7 +413,6 @@ int main()
         montecarlo[i]=0;
 
     generatemontecarlo(msim,montecarlo,areaS,rmin,thetha);
-
     sort(montecarlo,montecarlo+msim,greater<double>());
 
     vector<Circle> hotspotCircles;
@@ -422,7 +431,7 @@ int main()
     }
 
     for(int i=0;i<hotspotCircles.size();i++){
-        cout<< hotspotCircles[i].x<<" "<<hotspotCircles[i].y<<" "<<hotspotCircles[i].radius<<endl;
+        cout<< hotspotCircles[i].x<<" "<<hotspotCircles[i].y<<" "<<hotspotCircles[i].radius<<" ";
     }
     return 0;
 }

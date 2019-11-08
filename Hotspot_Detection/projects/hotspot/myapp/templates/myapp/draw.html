@@ -1,0 +1,10 @@
+{% if coord_list %}
+    <ul>
+        <li> Latitute : Longitute : Radius</li>
+    {% for data in coord_list %}
+        <li>{{ data[0] }} : {{ data[1] }} : {{ data[2]}}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No records are available.</p>
+{% endif %}
