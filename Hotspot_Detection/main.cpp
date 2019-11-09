@@ -51,7 +51,7 @@ void remove_negetive(vector<coord> &pos){
         pymax=max(pos[i].y,pymax);
     }
 }
-long scalex,scaley;
+long double scalex,scaley;
 void variate(vector<coord>&pos){
     scalex=1;scaley=1;
     while(pxmax*scalex<50)scalex*=10;
@@ -112,10 +112,10 @@ public:
       long C=noofpoints;
       if(!C>B)return log(0);
       long double  a=(C/B);
-      a=power(a,C);
+      a=C*log(a);
       long double  b=(modP-C)/(modP-B);
-      b=power(b,(modP-C));
-      return log(a*b);
+      b=(modP-C)*log(b);
+      return a+b;
   }
 };
 
@@ -266,7 +266,9 @@ vector<pair<long,long>> p2;
 
           long double areaMecc=lcell*lcell*p1[r].second;
           long double areaMfcc=lcell*lcell*p2[r].second;
+
           if(areaMfcc==0)continue;
+
           long nMecc=p1[r].first;
           long nMfcc=p2[r].first;
 
@@ -281,7 +283,7 @@ vector<pair<long,long>> p2;
 
       }
     }
-    //cout<<pos.size()<<endl;
+    cout<<pos.size()<<endl;
 
     if(maxxLLR>=thetha){
       filtered_set.push_back({{gridcenter_x,gridcenter_y},{}});
@@ -289,7 +291,7 @@ vector<pair<long,long>> p2;
       for(long i=0;i<pos.size();i++){
         if(lieincircle(maxxX,maxxY,maxxR,pos[i].x,pos[i].y)){
           filtered_set[sett].second.push_back(pos[i]);
-          gotoxy(pos[i].x,pos[i].y);cout<<"*";
+         // gotoxy(pos[i].x,pos[i].y);cout<<"*";
           //erase takes n to be changed
           long rx=pos[i].x/lcell;
           long ry=pos[i].y/lcell;
@@ -304,11 +306,13 @@ vector<pair<long,long>> p2;
         ++sett;
       else{
         filtered_set.pop_back();
+        //   chod h
         return filtered_set;
       }
     }
     else break;
   }
+  cout<<"filter done : "<<filtered_set.size()<<endl;
   return filtered_set;
 }
 
@@ -351,16 +355,20 @@ Circle SEC(vector<coord> P) {
 }
 
 bool is_pointliesincell(pair<int,int> c,long double  x,long double  y){
-    return (c.first/lcell==x && c.second/lcell==y);
+    long double a=ceil(x/lcell);
+    long double b=ceil(y/lcell);
+    if(a==c.first && b==c.second)return true;
+    return false;
 }
-vector<pair<Circle,long double > > Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,long thetha,long rmin){
+vector<pair<Circle,long double > > Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,long double thetha,long double rmin){
 
   vector<pair<Circle,long double > > candidate_circles;
   for(long i=0;i<fset.size();i++){
     pair<int,int> cellcenter=fset[i].first;
-    long r=inf;
+    long double r=inf;
     long double  cenx=(grid[cellcenter.first][cellcenter.second].Xmin+grid[cellcenter.first][cellcenter.second].Xmax)/2;
     long double  ceny=(grid[cellcenter.first][cellcenter.second].Ymin+grid[cellcenter.first][cellcenter.second].Ymax)/2;
+
     Circle maxC(0,0,0);
     long double  maxllr=-1;
 
@@ -368,6 +376,7 @@ vector<pair<Circle,long double > > Refine_Phase(vector<pair<pair<int,int>,vector
 
       Circle C=SEC(fset[i].second);
       C.noofpoints=fset[i].second.size();
+      r=C.radius;
 
       if(is_pointliesincell(cellcenter,C.x,C.y) && C.radius>=rmin){
         r=C.radius;
@@ -378,20 +387,23 @@ vector<pair<Circle,long double > > Refine_Phase(vector<pair<pair<int,int>,vector
         }
       }
       // farthest from center of cellcount
-      long double  dis=-1;long mpos;
+      long double  dis=-1;long mpos=-1;
       for(long j=0;j<fset[i].second.size();j++){
-        if(dis>abs(fset[i].second[j].x-cenx)+abs(fset[i].second[j].y-ceny)){
+        if(dis<abs(fset[i].second[j].x-cenx)+abs(fset[i].second[j].y-ceny)){
           dis=abs(fset[i].second[j].x-cenx)+abs(fset[i].second[j].y-ceny);
           mpos=j;
         }
       }
       //erase takes n
-      fset[i].second.erase(fset[i].second.begin()+mpos);
+      if(mpos!=-1)
+        fset[i].second.erase(fset[i].second.begin()+mpos);
     }
+
     if(maxllr!=-1){
       candidate_circles.push_back({maxC,maxllr});
     }
   }
+  cout<<"refine done : "<<candidate_circles.size()<<endl;
   return candidate_circles;
 }
 
@@ -449,7 +461,7 @@ int main()
     thetha=0;
     rmin=2.5;
     alphaP=0.001;
-    msim=999;
+    msim=3;
 
     long n;
     cin>>n;
@@ -473,7 +485,7 @@ int main()
     modP=points.size();
 
     //ceil to be chaged
-    lcell=rmin/2;
+    lcell=ceil(rmin/2);
     N=ceil(sidelength/lcell);
     total_countGrid_cells=N*N;
     total_cubicGrid_cells=N*N*N;
