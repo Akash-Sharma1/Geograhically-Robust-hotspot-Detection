@@ -65,12 +65,15 @@ def add(request):
 
     list = []
     Coordinates.objects.all().delete()
+    
     with open(r'C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\static\myapp\test.csv') as csvfile:
         readCSV =csv.reader(csvfile, delimiter=',')
         for row in readCSV:
             list.append([row[5],row[6]])
         c=0
         for data in list:
+            if c>5000:
+                break
             if c>0:
                 q = Coordinates(lat=data[0],longt=data[1])
                 q.save()

@@ -6,6 +6,8 @@ using namespace std;
 long double  power(long double  x, unsigned long y){long double  res = 1;while (y > 0){ if (y & 1){res = res*x;} y = y>>1;x = x*x;}return res;}
 const long inf=1e9;
 #define PI 3.14159
+long double thetha,rmin,alphaP;
+
 void gotoxy (int x, int y)
     {
          COORD coordinates;     // coordinates is declared as COORD
@@ -24,36 +26,53 @@ struct coord{
         this->y=b;
     }
 };
-pair<long ,long > find_bottom_left(vector<coord> &pos){
-    long double  min1=inf,min2=inf;
+
+long double pxmax,pxmin,pymax,pymin;
+
+void find_bottom_left(vector<coord> &pos){
+    pxmin=inf,pymin=inf;
     for(long i=0;i<pos.size();i++){
-        min1=min(pos[i].x,min1);
-        min2=min(pos[i].y,min2);
+        pxmin=min(pos[i].x,pxmin);
+        pymin=min(pos[i].y,pymin);
     }
-    return {min1,min2};
 }
-long double  scalefactor;
+pair<double,double> sf;//minimum subtractor
 void remove_negetive(vector<coord> &pos){
-    pair<long,long> sf=find_bottom_left(pos);
-    sf.first--;sf.second--;
+    find_bottom_left(pos);
+    sf = { pxmin,pymin };
+   // sf.first--;sf.second--;
+    pxmin=inf,pymin=inf,pxmax=0,pymax=0;
     for(long i=0;i<pos.size();i++){
         pos[i].x-=sf.first;
         pos[i].y-=sf.second;
+        pxmin=min(pos[i].x,pxmin);
+        pymin=min(pos[i].y,pymin);
+        pxmax=max(pos[i].x,pxmax);
+        pymax=max(pos[i].y,pymax);
     }
 }
+long scalex,scaley;
+void variate(vector<coord>&pos){
+    scalex=1;scaley=1;
+    while(pxmax*scalex<50)scalex*=10;
+    while(pymax*scaley<50)scaley*=10;
 
+    while(pxmax*scalex>50)scalex/=10;
+    while(pymax*scaley>50)scaley/=10;
+
+    for(long i=0;i<pos.size();i++){
+        pos[i].x*=scalex;
+        pos[i].y*=scaley;
+        //gotoxy(pos[i].x,pos[i].y);cout<<"*";
+        pxmin=min(pos[i].x,pxmin);
+        pymin=min(pos[i].y,pymin);
+        pxmax=max(pos[i].x,pxmax);
+        pymax=max(pos[i].y,pymax);
+    }
+}
 pair<int,int> getplanearea(vector<coord> &pos){
-  long double  xmin=inf,xmax=0,ymin=inf,ymax=0;
-  for(long i=0;i<pos.size();i++){
-    //  cout<<pos[i].x<<" "<<pos[i].y<<endl;
-    pos[i].x*=10;pos[i].y*=10;
-    xmin=min(xmin,pos[i].x);
-    ymin=min(ymin,pos[i].y);
-    xmax=max(xmax,pos[i].x);
-    ymax=max(ymax,pos[i].y);
-  }
-  long a=xmax-xmin;
-  long b=ymax-ymin;
+  long a=pxmax-pxmin;
+  long b=pymax-pymin;
   long edge=max(abs(a),abs(b));
   return {edge*edge,edge};
 }
@@ -66,108 +85,11 @@ long lcell,N,total_countGrid_cells,total_cubicGrid_cells;
 struct countGrid_Cell{
     long double  Xmin,Xmax,Ymin,Ymax;
     long cell_count;
+    countGrid_Cell(){cell_count=0;}
 };
 
 // needed to specify a limit to the count grid
 countGrid_Cell grid[5000][5000];
-
-////////////////////////////////////////////// MECC MFCC LLR /////////////////////////////////
-
-bool lieincircle(long double  a,long double  b,long r,const coord *p){
-  // (x-a)2+(y-b)2=r2
-  long double  rd=(p->x-a)*(p->x-a)+(p->y-b)*(p->y-b);
-  return rd<=r*r;
-}
-
-long checker(long x,long y,long radius,long i,long j,int var){
-
-    coord *a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
-    coord *b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
-    coord *c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
-    coord *d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
-
-    if(var==0){
-        while(! (lieincircle(x,y,radius,a) || lieincircle(x,y,radius,b) || lieincircle(x,y,radius,c) || lieincircle(x,y,radius,d)) ){
-          radius++;
-        }
-    }
-    else{
-        while(! (lieincircle(x,y,radius,a) && lieincircle(x,y,radius,b) && lieincircle(x,y,radius,c) && lieincircle(x,y,radius,d)) ){
-          radius++;
-        }
-    }
-    return radius;
-}
-
-vector< pair<long,long> > MECC_MFCC(long double cx,long double cy,long x,long y,int var){
-  map<pair<int,int>, int> mp;
-
-  queue<pair<long,long> > q;
-  int dx[4]={0,1,-1};
-
-  vector< pair<long,long> > ans(N/2+1);
-  int radius=1;
-
-  checker(cx,cy,radius,x,y,var);
-  q.push({x,y});
-  mp[{x,y}]=1;
-  ans[1].second=1;
-  ans[1].first=grid[i][j].cell_count();
-
-  while(!q.empty()){
-    int i=q.front().first;
-    int j=q.front().second;
-
-    q.pop();
-    for(int xd=0;xd<4;xd++){
-        for(int xy=0;xy<4;xy++){
-            i=i+dx[xd];
-            j=j+dx[xy];
-            if( i>=N || i<0 || j>=N || j<0 || mp[{i,j}]>0 )continue;
-
-            radius=checker(cx,cy,radius,i,j,var);
-            if(radius>N/2)continue;
-
-            q.push({i,j});
-            mp[{i,j}]++;
-            ans[radius].second++;
-            ans[radius].first+=grid[i][j].cell_count;
-
-        }
-    }
-  }
-  for(int i=0;i<ans.size();i++){
-    if(i-1>=0){
-        ans[i].first+=ans[i-1].first;
-        ans[i].second+=ans[i-1].second;
-    }
-  }
-  return ans;
-}
-
-
-long double  log_LRGrid_Upperbound(long double  areaMecc,long double  areaMfcc,long nMecc,long nMfcc){
-  long uc=nMecc;
-  long lc=nMfcc;
-  long double  ub=areaMecc*modP/areaS;
-  long double  lb=areaMfcc*modP/areaS;
-
-  if(!(uc>lb))return log(0);
-
-  long double  a=uc/lb;
-  a=power(a,uc);
-  long double  b;
-  if(lc>=ub){
-    b=modP-lc;
-    b/=(modP-ub);
-    b=power(b,(modP-uc) );
-  }
-  else{
-    b=1;
-  }
-  return log(a*b);
-}
-
 
 class Circle{
 public:
@@ -197,64 +119,195 @@ public:
   }
 };
 
+////////////////////////////////////////////// MECC MFCC LLR /////////////////////////////////
+bool lieincircle(long double  a,long double  b,long r,long double x,long double y){
+  long double  rd=abs(x-a)+abs(y-b);
+  return rd<=r;
+}
+bool Grid_lieincircle(long double  a,long double  b,long r,long double x,long double y){
+  long double  rd=(x-a)*(x-a)+(y-b)*(y-b);
+  rd=sqrt(rd);//distance of grid center from circle center
+  rd-=r;//extra distance need to cover to the center of grid
+  if(rd<=lcell/2)return true;
+  return false;
+}
+
+long checker(long double cx,long double cy,long radius,long i,long j,int var){
+
+    long double  cenx=(grid[i][j].Xmin+grid[i][j].Xmax)/2;
+    long double  ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
+
+    if(var==0){
+      while(Grid_lieincircle(cx,cy,radius,cenx,ceny) == false){
+        radius++;
+      }
+    }
+    else{
+        coord *a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
+        coord *b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
+        coord *c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
+        coord *d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
+      while((lieincircle(cx,cy,radius,a->x,a->y) && lieincircle(cx,cy,radius,b->x,b->y) && lieincircle(cx,cy,radius,c->x,c->y) && lieincircle(cx,cy,radius,d->x,d->y))==false){
+        radius++;
+      }
+    }
+    return radius;
+}
+
+vector< pair<long,long> > MECC_MFCC(long double cx,long double cy,long x,long y,int var){
+  map<pair<int,int>, int> mp;
+
+  queue<pair<long,long> > q;
+  int dx[4]={0,1,-1};
+
+  vector< pair<long,long> > ans(50);
+  for(int i=0;i<ans.size();i++){ans[i].second=0;ans[i].first=0;}
+  long radius=1;
+
+  radius=checker(cx,cy,radius,x,y,var);
+  q.push({x,y});
+  mp[{x,y}]=1;
+  ans[radius].second=1;
+  ans[radius].first=grid[x][y].cell_count;
+
+  while(!q.empty() && radius<N/2){
+    int a=q.front().first;
+    int b=q.front().second;
+
+    q.pop();
+    for(int xd=0;xd<3 && radius<N/2;xd++){
+        for(int xy=0;xy<3;xy++){
+            int i=a+dx[xd];
+            int j=b+dx[xy];
+            if( i>=N || i<0 || j>=N || j<0 || mp[{i,j}]>0 )continue;
+            radius=checker(cx,cy,radius,i,j,var);
+            if(radius>=N/2)break;
+
+            q.push({i,j});
+            mp[{i,j}]++;
+            ans[radius].second++;
+            ans[radius].first+=grid[i][j].cell_count;
+        }
+    }
+  }
+  for(int i=1;i<ans.size();i++){
+    ans[i].first+=ans[i-1].first;
+    ans[i].second+=ans[i-1].second;
+  }
+  return ans;
+}
+
+
+long double  log_LRGrid_Upperbound(long nMecc,long nMfcc,long double  areaMecc,long double  areaMfcc){
+  long uc=nMecc;
+  long lc=nMfcc;
+  long double  ub=areaMecc*modP/areaS;
+  long double  lb=areaMfcc*modP/areaS;
+
+  if(!(uc>lb))return -inf;
+
+  long double  a=uc/lb;
+  a=uc*log(a);
+  long double  b;
+  if(lc>=ub){
+    b=modP-lc;
+    b/=(modP-ub);
+    b=(modP-uc)*log(b);
+  }
+  else{
+    b=0;//log1=0
+  }
+  return a+b;
+}
+
 /////////////////////////////////////////////////////// PHASES //////////////////////////////////////////////////////////
 vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> pos,long thetha){
+  long double gridx=0;
+  for (int i=0;i<=N;i++){
+    long double gridy=0;
+    for(int j=0;j<=N;j++){
+        grid[i][j].Xmin=gridx;
+        grid[i][j].Xmax=gridy+lcell-.00001;
+        grid[i][j].Ymin=gridy;
+        grid[i][j].Ymax=gridy+lcell-.00001;
+        gridy+=lcell;
+        grid[i][j].cell_count=0;
+    }
+    gridx+=lcell;
+  }
+
+
   for(long i=0;i<pos.size();i++){
-       // cout<<pos[i].x<< " "<<pos[i].y<<endl;
     long x=pos[i].x/lcell;
     long y=pos[i].y/lcell;
-    if(grid[x][y].cell_count==0){
-        grid[x][y].Xmin=x*lcell;
-        grid[x][y].Ymin=y*lcell;
-        grid[x][y].Xmax=x*lcell+lcell-0.00001;
-        grid[x][y].Ymax=y*lcell+lcell-0.00001;
-    }
     grid[x][y].cell_count++;
   }
+
   vector<pair<pair<int,int>,vector<coord> > > filtered_set;
   long sett=0;
-
+//cout<<N<<endl;
   while(!pos.empty()){
     long double  maxxLLR=-1;
-    long maxxX,maxxY,maxxR,xx,yy;
+    long double maxxX,maxxY,maxxR,gridcenter_x,gridcenter_y,pts;
+
+vector<pair<long,long>> p1;
+vector<pair<long,long>> p2;
 
     for(long i=0;i<N;i++){
       for(long j=0;j<N;j++){
-        if(grid[i][j].cell_count<10)continue;
 
         long double  cenx=(grid[i][j].Xmin+grid[i][j].Xmax)/2;
         long double  ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
 
-        vector<pair<long,long>> p1=MECC_MFCC(i,j,cenx,ceny,0);
-        vector<pair<long,long>> p2=MECC_MFCC(i,j,cenx,ceny,1);
+        p1=MECC_MFCC(cenx,ceny,i,j,0);
+        p2=MECC_MFCC(cenx,ceny,i,j,1);
 
-        for(long r=1;r<=N/2;r++){
-          long double areaMecc=lcell*lcell*p1[i].second;
-          long double areaMfcc=lcell*lcell*p2[i].second;
-          long nMecc=p1[i].first;
-          long nMfcc=p2[i].first;
+        for(long r=ceil(rmin);r<p1.size();r++){
+
+          long double areaMecc=lcell*lcell*p1[r].second;
+          long double areaMfcc=lcell*lcell*p2[r].second;
+          if(areaMfcc==0)continue;
+          long nMecc=p1[r].first;
+          long nMfcc=p2[r].first;
 
           long double  llr=log_LRGrid_Upperbound(nMecc,nMfcc,areaMecc,areaMfcc);
+
           if(llr>=thetha && llr>maxxLLR){
               maxxLLR=llr;
-              maxxX=cenx;maxxY=ceny;maxxR=r;xx=i;yy=j;
+              maxxX=cenx;maxxY=ceny;maxxR=r;gridcenter_x=i;gridcenter_y=j;
+            pts=nMfcc;
           }
         }
+
       }
     }
-    if(maxxLLR!=-1){
-      filtered_set.push_back({{xx,yy},{}});
+    //cout<<pos.size()<<endl;
+
+    if(maxxLLR>=thetha){
+      filtered_set.push_back({{gridcenter_x,gridcenter_y},{}});
+      int flag=0;
       for(long i=0;i<pos.size();i++){
-        if(lieincircle(maxxX,maxxY,maxxR,&pos[i])){
+        if(lieincircle(maxxX,maxxY,maxxR,pos[i].x,pos[i].y)){
           filtered_set[sett].second.push_back(pos[i]);
-          //erase takes n to be hcanged
+          gotoxy(pos[i].x,pos[i].y);cout<<"*";
+          //erase takes n to be changed
+          long rx=pos[i].x/lcell;
+          long ry=pos[i].y/lcell;
+          grid[rx][ry].cell_count--;
+          //cout<<pos[i].x<<" "<<pos[i].y<<endl;
           pos.erase(pos.begin()+i);
           i--;
+          flag++;
         }
       }
-      ++sett;
+      if(flag)
+        ++sett;
+      else{
+        filtered_set.pop_back();
+        return filtered_set;
+      }
     }
-
+    else break;
   }
   return filtered_set;
 }
@@ -367,7 +420,7 @@ void generatemontecarlo(long m,long double  montecarlo[],long double  areaS,long
     for(i=0;i<m;i++)
     {
         vector<coord> crd;
-        for(j=0;j<100;j++)
+        for(j=0;j<5000;j++)
         {
             long double  lat=fmod(rand(),sidelength);
             long double  lon=fmod(rand(),sidelength);
@@ -392,40 +445,36 @@ int main()
     freopen("inputgen.txt","r",stdin);
     //freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\outputgen.txt","w",stdout);
 
-    long double thetha,rmin,alphaP;
     long msim;
     thetha=0;
-    rmin=2;
-    alphaP=0.1;
-    msim=5;
+    rmin=2.5;
+    alphaP=0.001;
+    msim=999;
 
     long n;
     cin>>n;
     //cout<<n<<endl;
 
-    vector<coord> points(n);
+    vector<coord> points(5000);
 
-    for(long i=0;i<n;i++){
+    for(long i=0;i<5000;i++){
       string x;
       cin>>x;
-      points[i].x=stod(x)*10;
+      points[i].x=stod(x);
       cin>>x;
-      points[i].y=stod(x)*10;
+      points[i].y=stod(x);
     }
 
     remove_negetive(points);
+    variate(points);
     pair<int,int> p=getplanearea(points);
     areaS=p.first;
     sidelength=p.second;
     modP=points.size();
 
-//    for(int i=0;i<5;i++){
-//        cout<<points[i].x<<endl;
-//        cout<<points[i].y<<" "<<endl;
-//    }
     //ceil to be chaged
-    lcell=ceil(rmin/2);
-    N=sidelength/lcell;
+    lcell=rmin/2;
+    N=ceil(sidelength/lcell);
     total_countGrid_cells=N*N;
     total_cubicGrid_cells=N*N*N;
 
