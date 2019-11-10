@@ -120,9 +120,32 @@ public:
 };
 
 ////////////////////////////////////////////// MECC MFCC LLR /////////////////////////////////
+
+
+long double  log_LRGrid_Upperbound(long nMecc,long nMfcc,long double  areaMecc,long double  areaMfcc){
+  long uc=nMecc;
+  long lc=nMfcc;
+  long double  ub=areaMecc*modP/areaS;
+  long double  lb=areaMfcc*modP/areaS;
+
+  if(!(uc>lb))return -inf;
+
+  long double  a=uc/lb;
+  a=uc*log(a);
+  long double  b;
+  if(lc>=ub){
+    b=modP-lc;
+    b/=(modP-ub);
+    b=(modP-uc)*log(b);
+  }
+  else{
+    b=0;//log1=0
+  }
+  return a+b;
+}
 bool lieincircle(long double  a,long double  b,long r,long double x,long double y){
-  long double  rd=abs(x-a)+abs(y-b);
-  return rd<=r;
+  long double  rd=(x-a)*(x-a)+(y-b)*(y-b);
+  return rd*1.0<=r*r;
 }
 bool Grid_lieincircle(long double  a,long double  b,long r,long double x,long double y){
   long double  rd=(x-a)*(x-a)+(y-b)*(y-b);
@@ -133,12 +156,12 @@ bool Grid_lieincircle(long double  a,long double  b,long r,long double x,long do
 }
 
 long checker(long double cx,long double cy,long radius,long i,long j,int var){
-
-    long double  cenx=(grid[i][j].Xmin+grid[i][j].Xmax)/2;
-    long double  ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
-
     if(var==0){
-      while(Grid_lieincircle(cx,cy,radius,cenx,ceny) == false){
+      coord *a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
+        coord *b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
+        coord *c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
+        coord *d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
+      while((lieincircle(cx,cy,radius,a->x,a->y) || lieincircle(cx,cy,radius,b->x,b->y) || lieincircle(cx,cy,radius,c->x,c->y) || lieincircle(cx,cy,radius,d->x,d->y))==false){
         radius++;
       }
     }
@@ -158,7 +181,7 @@ vector< pair<long,long> > MECC_MFCC(long double cx,long double cy,long x,long y,
   map<pair<int,int>, int> mp;
 
   queue<pair<long,long> > q;
-  int dx[4]={0,1,-1};
+  int dx[3]={0,1,-1};
 
   vector< pair<long,long> > ans(50);
   for(int i=0;i<ans.size();i++){ans[i].second=0;ans[i].first=0;}
@@ -196,30 +219,6 @@ vector< pair<long,long> > MECC_MFCC(long double cx,long double cy,long x,long y,
   }
   return ans;
 }
-
-
-long double  log_LRGrid_Upperbound(long nMecc,long nMfcc,long double  areaMecc,long double  areaMfcc){
-  long uc=nMecc;
-  long lc=nMfcc;
-  long double  ub=areaMecc*modP/areaS;
-  long double  lb=areaMfcc*modP/areaS;
-
-  if(!(uc>lb))return -inf;
-
-  long double  a=uc/lb;
-  a=uc*log(a);
-  long double  b;
-  if(lc>=ub){
-    b=modP-lc;
-    b/=(modP-ub);
-    b=(modP-uc)*log(b);
-  }
-  else{
-    b=0;//log1=0
-  }
-  return a+b;
-}
-
 /////////////////////////////////////////////////////// PHASES //////////////////////////////////////////////////////////
 vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> pos,long thetha){
   long double gridx=0;
@@ -227,7 +226,7 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> pos,long 
     long double gridy=0;
     for(int j=0;j<=N;j++){
         grid[i][j].Xmin=gridx;
-        grid[i][j].Xmax=gridy+lcell-.00001;
+        grid[i][j].Xmax=gridx+lcell-.00001;
         grid[i][j].Ymin=gridy;
         grid[i][j].Ymax=gridy+lcell-.00001;
         gridy+=lcell;
@@ -286,17 +285,17 @@ vector<pair<long,long>> p2;
     cout<<pos.size()<<endl;
 
     if(maxxLLR>=thetha){
+            cout<<"traped : ";
+
       filtered_set.push_back({{gridcenter_x,gridcenter_y},{}});
       int flag=0;
       for(long i=0;i<pos.size();i++){
         if(lieincircle(maxxX,maxxY,maxxR,pos[i].x,pos[i].y)){
           filtered_set[sett].second.push_back(pos[i]);
          // gotoxy(pos[i].x,pos[i].y);cout<<"*";
-          //erase takes n to be changed
           long rx=pos[i].x/lcell;
           long ry=pos[i].y/lcell;
           grid[rx][ry].cell_count--;
-          //cout<<pos[i].x<<" "<<pos[i].y<<endl;
           pos.erase(pos.begin()+i);
           i--;
           flag++;
@@ -306,7 +305,11 @@ vector<pair<long,long>> p2;
         ++sett;
       else{
         filtered_set.pop_back();
+        for(long i=0;i<pos.size();i++){
+            cout<<pos[i].x<<" "<<pos[i].y<<endl;
+        }
         //   chod h
+        cout<<"filter Breakout : "<<filtered_set.size()<<endl;
         return filtered_set;
       }
     }
@@ -355,9 +358,13 @@ Circle SEC(vector<coord> P) {
 }
 
 bool is_pointliesincell(pair<int,int> c,long double  x,long double  y){
-    long double a=ceil(x/lcell);
-    long double b=ceil(y/lcell);
-    if(a==c.first && b==c.second)return true;
+    double Xmin=grid[c.first][c.second].Xmin-1;//for approximate ans
+    double Xmax=grid[c.first][c.second].Xmax+1;
+    double Ymin=grid[c.first][c.second].Ymin-1;
+    double Ymax=grid[c.first][c.second].Ymax+1;
+    if(x>=Xmin && x<=Xmax){
+        if(y>=Ymin && y<=Ymax)return true;
+    }
     return false;
 }
 vector<pair<Circle,long double > > Refine_Phase(vector<pair<pair<int,int>,vector<coord> > > fset,long double thetha,long double rmin){
@@ -374,6 +381,7 @@ vector<pair<Circle,long double > > Refine_Phase(vector<pair<pair<int,int>,vector
 
     while(fset[i].second.size()!=0 && r>=rmin){
 
+    //cout<<fset[i].second.size()<<endl;
       Circle C=SEC(fset[i].second);
       C.noofpoints=fset[i].second.size();
       r=C.radius;
@@ -407,9 +415,6 @@ vector<pair<Circle,long double > > Refine_Phase(vector<pair<pair<int,int>,vector
   return candidate_circles;
 }
 
-long double  rand_double () {
-   return rand()/(long double )RAND_MAX;
-}
 /*
 long getPoissonRandom(long u)
 {
@@ -426,6 +431,9 @@ long getPoissonRandom(long u)
   return k - 1;
 }
 */
+long double  rand_double () {
+   return rand()/(long double )RAND_MAX;
+}
 void generatemontecarlo(long m,long double  montecarlo[],long double  areaS,long double  rmin,long double  thetha)
 {
     long i,j;
@@ -435,7 +443,9 @@ void generatemontecarlo(long m,long double  montecarlo[],long double  areaS,long
         for(j=0;j<5000;j++)
         {
             long double  lat=fmod(rand(),sidelength);
+            if(lat<0)lat=-lat;
             long double  lon=fmod(rand(),sidelength);
+            if(lon<0)lat=-lon;
             crd.push_back({lat,lon});
             //cout<<lat<<" "<<lon<<endl;
         }
@@ -461,15 +471,15 @@ int main()
     thetha=0;
     rmin=2.5;
     alphaP=0.001;
-    msim=3;
+    msim=5;
 
     long n;
     cin>>n;
     //cout<<n<<endl;
 
-    vector<coord> points(5000);
+    vector<coord> points(1000);
 
-    for(long i=0;i<5000;i++){
+    for(long i=0;i<1000;i++){
       string x;
       cin>>x;
       points[i].x=stod(x);
@@ -508,8 +518,7 @@ int main()
 
     vector<Circle> hotspotCircles;
     for(long i=0;i<candidate_circles.size();i++){
-        // will use binary search to search position of log in the array but
-        // for the time being but here we are brute forcing to get solution
+        // will use binary search
         for(long j=0;j<msim;j++){
             if(candidate_circles[i].second>montecarlo[j]){
                 long double  pval=((long double )j)/((long double )msim+1);

@@ -283,7 +283,7 @@ vector<pair<long,long>> p2;
 
       }
     }
-    cout<<pos.size()<<endl;
+   // cout<<pos.size()<<endl;
 
     if(maxxLLR>=thetha){
       filtered_set.push_back({{gridcenter_x,gridcenter_y},{}});
@@ -312,7 +312,7 @@ vector<pair<long,long>> p2;
     }
     else break;
   }
-  cout<<"filter done : "<<filtered_set.size()<<endl;
+  //cout<<"filter done : "<<filtered_set.size()<<endl;
   return filtered_set;
 }
 
@@ -403,7 +403,7 @@ vector<pair<Circle,long double > > Refine_Phase(vector<pair<pair<int,int>,vector
       candidate_circles.push_back({maxC,maxllr});
     }
   }
-  cout<<"refine done : "<<candidate_circles.size()<<endl;
+ // cout<<"refine done : "<<candidate_circles.size()<<endl;
   return candidate_circles;
 }
 
@@ -454,8 +454,8 @@ void generatemontecarlo(long m,long double  montecarlo[],long double  areaS,long
 int main()
 {
 
-    freopen("inputgen.txt","r",stdin);
-    //freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\outputgen.txt","w",stdout);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\inputgen.txt","r",stdin);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\outputgen.txt","w",stdout);
 
     long msim;
     thetha=0;
@@ -467,9 +467,9 @@ int main()
     cin>>n;
     //cout<<n<<endl;
 
-    vector<coord> points(5000);
+    vector<coord> points(n);
 
-    for(long i=0;i<5000;i++){
+    for(long i=0;i<n;i++){
       string x;
       cin>>x;
       points[i].x=stod(x);

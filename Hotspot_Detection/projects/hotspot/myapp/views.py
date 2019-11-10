@@ -72,8 +72,8 @@ def add(request):
             list.append([row[5],row[6]])
         c=0
         for data in list:
-            if c>5000:
-                break
+            if c>1000:
+                break;
             if c>0:
                 q = Coordinates(lat=data[0],longt=data[1])
                 q.save()
