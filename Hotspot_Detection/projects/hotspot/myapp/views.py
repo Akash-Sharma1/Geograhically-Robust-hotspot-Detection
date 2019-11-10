@@ -4,10 +4,23 @@ from django.shortcuts import render
 from .models import Coordinates
     
 def show(request):
-    context = {
-        'data_list' : Coordinates.objects.all()
-    }
-    return render(request,'myapp/add.html',context)
+    w= open(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\static\myapp\foo.txt","w+")
+    st='['
+    w.write(st)
+    c=0
+    for i in Coordinates.objects.all():
+        if c>0:
+            st=', \n {'
+        else:
+            st = '\n { \n'
+        st += "\"lat\" : "+str(i.lat)+",\n \"lng\" : "+str(i.longt)+"\n"
+        st += '}'
+        w.write(st)
+        c += 1
+    st=']'
+    w.write(st)
+    w.close()
+    return render(request,'myapp/plotmarkers.html',{})
 
 def draw(request):
     import subprocess 
@@ -31,31 +44,6 @@ def draw(request):
     #main.cpp uses inputgen.txt to get input and saves ouput in
     #outputgen.txt file, now python takes result from that file
     
-    
-    list =""
-    f= open(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\static\myapp\outputgen.txt","r")
-    f1=f.readlines()
-    for row in f1:
-        list+=str(row)
-        list+=" "
-
-    list=list.split()
-#    print(list) 
-    
-    value=[]
-    c=0
-    temp= []
-    for data in list:
-        temp.append(data)
-        if c%3==2:
-            value.append(temp)
-            temp = []
-        c += 1
-        
-    context = {
-        'coord_list' : value,
-    }
-    #value[i][0] gives data
     
     return render(request,'myapp/draw.html',context)
 

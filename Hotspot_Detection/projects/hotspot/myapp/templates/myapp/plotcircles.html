@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 70%; margin: 0; padding: 0 }
+      #map_canvas { height: 70% }
+    </style>
+    <script type="text/javascript"
+      src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBUuOtNyFrqUt5QwgwIhJPMtcaW8Hps6Tk">
+    </script>
+    <script type="text/javascript">
+      var map;
+function initialize() {
+        var mapOptions = {
+            center: new google.maps.LatLng(40.73202896118164,-73.99017333984375),
+            zoom: 15,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        map = new google.maps.Map(document.getElementById("map_canvas"),
+            mapOptions);
+
+
+//  {
+//    center: {lat: 41.878, lng: -87.629},
+ //   population: 2714856
+  //},
+$(document).ready(function() {
+    $.getJSON( "http://127.0.0.1:8000/static/myapp/fcircle.txt"   , function(json1) {
+      $.each(json1, function(key, data) {
+
+        var coord = new google.maps.LatLng(data.center[0], data.center[1]);
+        // Creating a marker and putting it on the map
+        var marker = new google.maps.Marker({position: coord, map: map});
+        console.log(data.lat+' '+data.lng);
+        
+        var cityCircle = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: map,
+            center: data.center,
+            radius: Math.sqrt(data.population) * 100
+          });
+      });
+    });
+  });
+}
+    </script>
+    {% load static %}
+    <script type="text/javascript" src="{% static "myapp/jq.js" %}"></script>
+  </head>
+  <body onload="initialize()">
+    <div id="map_canvas" style="width:100%; height:100%"></div>
+
+  </body>
+</html>
