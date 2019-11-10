@@ -67,8 +67,8 @@ void variate(vector<coord>&pos){
       ymin= min(ymin, pos[i].y);
     }
     cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
-    factorX= 100/(xmax-xmin);
-    factorY= 100/(ymax-ymin);
+    factorX= 20/(xmax-xmin);
+    factorY= 20/(ymax-ymin);
     //if(factorX <100) factorX= 100/factorX;
     //if(factorY < 100) factorY=100/factorY;
     cout << factorX << "      " << factorY << endl;
@@ -86,6 +86,14 @@ void variate(vector<coord>&pos){
     cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
     
 }
+
+void scaleback(long double &xx, long double &yy, long double &rr){
+    xx/=scale;
+    yy/=scale;
+    xx+=sf.first;
+    yy+=sf.second;
+    rr/=scale;
+  }
 
 pair<int,int> getplanearea(vector<coord> &pos){
   long a=pxmax-pxmin;
@@ -503,13 +511,8 @@ int main()
       cin>>x;
       points[i].y=stod(x);
     }
-
     remove_negetive(points);
     variate(points);
-    for(int i=0;i<10;i++){
-      cout << points[i].x <<" " << points[i].y << endl;
-    }
-    exit(0);
     pair<int,int> p=getplanearea(points);
     areaS=p.first;
     sidelength=p.second;
@@ -528,7 +531,6 @@ int main()
     vector<pair<pair<int,int>,vector<coord> > > fset= Filter_Phase(points,thetha);
     // circles, logirithmic value
     vector<pair<Circle,long double > > candidate_circles=Refine_Phase(fset,thetha,rmin);
-
     srand(time(NULL));
     long double  montecarlo[msim];
     for(long i=0;i<msim;i++)
@@ -550,8 +552,10 @@ int main()
             }
         }
     }
+
     for(long i=0;i<hotspotCircles.size();i++){
-        cout<< hotspotCircles[i].x<<" "<<hotspotCircles[i].y<<" "<<hotspotCircles[i].radius<<endl;
+         scaleback(hotspotCircles[i].x,hotspotCircles[i].y,hotspotCircles[i].radius);
+         cout << hotspotCircles[i].x<<" " <<hotspotCircles[i].y<<" " <<hotspotCircles[i].radius << endl;
     }
     return 0;
 }
