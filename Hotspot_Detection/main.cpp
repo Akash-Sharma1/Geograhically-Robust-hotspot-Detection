@@ -51,25 +51,42 @@ void remove_negetive(vector<coord> &pos){
         pymax=max(pos[i].y,pymax);
     }
 }
-long double scalex,scaley;
+long double scale;
 void variate(vector<coord>&pos){
-    scalex=1;scaley=1;
-    while(pxmax*scalex<50)scalex*=10;
-    while(pymax*scaley<50)scaley*=10;
-
-    while(pxmax*scalex>50)scalex/=10;
-    while(pymax*scaley>50)scaley/=10;
-
-    for(long i=0;i<pos.size();i++){
-        pos[i].x*=scalex;
-        pos[i].y*=scaley;
-        //gotoxy(pos[i].x,pos[i].y);cout<<"*";
-        pxmin=min(pos[i].x,pxmin);
-        pymin=min(pos[i].y,pymin);
-        pxmax=max(pos[i].x,pxmax);
-        pymax=max(pos[i].y,pymax);
+    long double factorX,factorY;
+    int n= pos.size();
+    long double xmax = INT_MIN;
+    long double xmin = INT_MAX;
+    long double ymax = INT_MIN;
+    long double ymin = INT_MAX;
+    
+    for(int i=0;i<n;i++){
+      xmax= max(xmax, pos[i].x);
+      ymax= max(ymax, pos[i].y);
+      xmin= min(xmin, pos[i].x);
+      ymin= min(ymin, pos[i].y);
     }
+    cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
+    factorX= 100/(xmax-xmin);
+    factorY= 100/(ymax-ymin);
+    //if(factorX <100) factorX= 100/factorX;
+    //if(factorY < 100) factorY=100/factorY;
+    cout << factorX << "      " << factorY << endl;
+    scale=min(factorX,factorY);
+    for(int i=0;i<n;i++){
+      pos[i].x*=scale;
+      pos[i].y*=scale;
+    }
+    for(int i=0;i<n;i++){
+      xmax= max(xmax, pos[i].x);
+      ymax= max(ymax, pos[i].y);
+      xmin= min(xmin, pos[i].x);
+      ymin= min(ymin, pos[i].y);
+    }
+    cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
+    
 }
+
 pair<int,int> getplanearea(vector<coord> &pos){
   long a=pxmax-pxmin;
   long b=pymax-pymin;
@@ -477,9 +494,9 @@ int main()
     cin>>n;
     //cout<<n<<endl;
 
-    vector<coord> points(1000);
+    vector<coord> points(5000);
 
-    for(long i=0;i<1000;i++){
+    for(long i=0;i<5000;i++){
       string x;
       cin>>x;
       points[i].x=stod(x);
@@ -489,6 +506,10 @@ int main()
 
     remove_negetive(points);
     variate(points);
+    for(int i=0;i<10;i++){
+      cout << points[i].x <<" " << points[i].y << endl;
+    }
+    exit(0);
     pair<int,int> p=getplanearea(points);
     areaS=p.first;
     sidelength=p.second;
