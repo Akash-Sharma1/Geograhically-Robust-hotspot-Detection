@@ -59,32 +59,33 @@ void variate(vector<coord>&pos){
     long double xmin = INT_MAX;
     long double ymax = INT_MIN;
     long double ymin = INT_MAX;
-    
-    for(int i=0;i<n;i++){
+
+    for(int i=0;i<pos.size();i++){
       xmax= max(xmax, pos[i].x);
       ymax= max(ymax, pos[i].y);
       xmin= min(xmin, pos[i].x);
       ymin= min(ymin, pos[i].y);
     }
-    cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
-    factorX= 20/(xmax-xmin);
-    factorY= 20/(ymax-ymin);
-    //if(factorX <100) factorX= 100/factorX;
-    //if(factorY < 100) factorY=100/factorY;
-    cout << factorX << "      " << factorY << endl;
+//    cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
+    factorX= 100/(xmax-xmin);
+    factorY= 100/(ymax-ymin);
+    //XXXXif(factorX <100) factorX= 100/factorX;
+    //XXXXif(factorY < 100) factorY=100/factorY;
     scale=min(factorX,factorY);
-    for(int i=0;i<n;i++){
+    for(int i=0;i<pos.size();i++){
       pos[i].x*=scale;
       pos[i].y*=scale;
     }
-    for(int i=0;i<n;i++){
+    for(int i=0;i<pos.size();i++){
       xmax= max(xmax, pos[i].x);
       ymax= max(ymax, pos[i].y);
       xmin= min(xmin, pos[i].x);
       ymin= min(ymin, pos[i].y);
     }
-    cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
-    
+
+//    cout << factorX << "      " << factorY << endl;
+//    cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
+
 }
 
 void scaleback(long double &xx, long double &yy, long double &rr){
@@ -96,15 +97,29 @@ void scaleback(long double &xx, long double &yy, long double &rr){
   }
 
 pair<int,int> getplanearea(vector<coord> &pos){
-  long a=pxmax-pxmin;
-  long b=pymax-pymin;
-  long edge=max(abs(a),abs(b));
+
+    long double xmax = INT_MIN;
+    long double xmin = INT_MAX;
+    long double ymax = INT_MIN;
+    long double ymin = INT_MAX;
+
+  for(int i=0;i<pos.size();i++){
+      xmax= max(xmax, pos[i].x);
+      ymax= max(ymax, pos[i].y);
+      xmin= min(xmin, pos[i].x);
+      ymin= min(ymin, pos[i].y);
+    }
+
+//    cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
+  long edge=max(abs(xmax-xmin),abs(ymax-ymin));
+//  cout<<edge<<endl;
   return {edge*edge,edge};
 }
 
 /////////////////////////////////////////////////////// COUNT GRID ////////////////////////////////////
 long modP,areaS,sidelength;
-long lcell,N,total_countGrid_cells,total_cubicGrid_cells;
+long double lcell;
+long N,total_countGrid_cells,total_cubicGrid_cells;
 
 // A SINGLE CELL CELLCOUNT NUMBER OF POINTS FROM XMIN TO XMAX, YMIN TO YMAX IN A SINGLE CELL
 struct countGrid_Cell{
@@ -176,7 +191,6 @@ bool lieincircle(long double  a,long double  b,long r,long double x,long double 
 bool intersect(double a,double b,double c,double x,double y,double r)
 {
     double dist = (abs(a * x + b * y + c)) /  sqrt(a * a + b * b);
-
     // Checking if the distance is less than,
     // greater than or equal to radius.
     if (r >= dist)
@@ -184,7 +198,7 @@ bool intersect(double a,double b,double c,double x,double y,double r)
         else
         return false;
 }
-bool findFoot(double a, double b, double c,double x1, double y1 ,double lx,double rx,double ly,double ry )
+bool findFoot(double a, double b, long double c,double x1, double y1 ,double lx,double rx,double ly,double ry )
 {
     double temp = -1 * (a * x1 + b * y1 + c) / (a * a + b * b);
     double x = temp * a + x1;
@@ -194,14 +208,14 @@ bool findFoot(double a, double b, double c,double x1, double y1 ,double lx,doubl
     return false;
 }
 
-bool Grid_lieincircle(long double  a,long double  b,long r,long i,long j){
+bool Grid_lieincircle(long double  a,long double  b,long double r,long i,long j){
 
   int xmin=grid[i][j].Xmin;
   int xmax=grid[i][j].Xmax;
   int ymin=grid[i][j].Ymin;
   int ymax=grid[i][j].Ymax;
   bool ans=false;
-  ans|=lieincircle(a,b,xmin,ymin,r)|lieincircle(a,b,xmin,ymax,r)|lieincircle(a,b,xmax,ymax,r)|lieincircle(a,b,xmax,ymin,r);
+  ans|=lieincircle(a,b,r,xmin,ymin)|lieincircle(a,b,r,xmin,ymax)|lieincircle(a,b,r,xmax,ymax)|lieincircle(a,b,r,xmax,ymin);
   if(ans)
     return ans;
   ans|=(intersect(0,xmax-xmin,-(xmax-xmin)*ymax,a,b,r) && findFoot(0,xmax-xmin,-(xmax-xmin)*ymax,a,b,xmin,xmax,ymax,ymax));
@@ -212,7 +226,7 @@ bool Grid_lieincircle(long double  a,long double  b,long r,long i,long j){
 
 }
 
-long checker(long double cx,long double cy,long radius,long i,long j,int var){
+long double checker(long double cx,long double cy,long double radius,long i,long j,int var){
 
     long double  cenx=(grid[i][j].Xmin+grid[i][j].Xmax)/2;
     long double  ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
@@ -243,7 +257,7 @@ vector< pair<long,long> > MECC_MFCC(long double cx,long double cy,long x,long y,
 
   vector< pair<long,long> > ans(50);
   for(int i=0;i<ans.size();i++){ans[i].second=0;ans[i].first=0;}
-  long radius=1;
+  long double radius=1;
 
   radius=checker(cx,cy,radius,x,y,var);
   q.push({x,y});
@@ -280,29 +294,38 @@ vector< pair<long,long> > MECC_MFCC(long double cx,long double cy,long x,long y,
 /////////////////////////////////////////////////////// PHASES //////////////////////////////////////////////////////////
 vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> pos,long thetha){
   long double gridx=0;
+  cout<<"Value Of N : "<<N<<endl;
   for (int i=0;i<=N;i++){
     long double gridy=0;
     for(int j=0;j<=N;j++){
         grid[i][j].Xmin=gridx;
-        grid[i][j].Xmax=gridx+lcell-.00001;
+        grid[i][j].Xmax=gridx+lcell-.00000001;
+        //cout<<grid[i][j].Xmax<<endl;
         grid[i][j].Ymin=gridy;
-        grid[i][j].Ymax=gridy+lcell-.00001;
+        grid[i][j].Ymax=gridy+lcell-.00000001;
         gridy+=lcell;
         grid[i][j].cell_count=0;
     }
     gridx+=lcell;
   }
-
+    cout<<grid[15][41].Xmax<<endl;
 
   for(long i=0;i<pos.size();i++){
     long x=pos[i].x/lcell;
     long y=pos[i].y/lcell;
     grid[x][y].cell_count++;
+    if(pos[i].x>=grid[x][y].Xmin && pos[i].x<=grid[x][y].Xmax && pos[i].y>=grid[x][y].Ymin && pos[i].y<=grid[x][y].Ymax){
+      continue;
+    }
+    else {cout<<"FAULT IS HERE : "<<pos[i].x<<" "<<pos[i].y<<" "<<lcell<<" "<<x<<" "<<y;
+    cout<<endl;
+
+    cout<<grid[x][y].Xmin<<" "<<grid[x][y].Xmax<<" "<<grid[x][y].Ymin<<" "<<grid[x][y].Ymax<<endl;
+    while(true){}}
   }
 
   vector<pair<pair<int,int>,vector<coord> > > filtered_set;
   long sett=0;
-//cout<<N<<endl;
   while(!pos.empty()){
     long double  maxxLLR=-1;
     long double maxxX,maxxY,maxxR,gridcenter_x,gridcenter_y,pts;
@@ -324,7 +347,9 @@ vector<pair<long,long>> p2;
           long double areaMecc=lcell*lcell*p1[r].second;
           long double areaMfcc=lcell*lcell*p2[r].second;
 
-          if(areaMfcc==0)continue;
+          if(areaMfcc==0){
+            cout<<" area 0 h "<<endl;
+          }
 
           long nMecc=p1[r].first;
           long nMfcc=p2[r].first;
@@ -343,8 +368,6 @@ vector<pair<long,long>> p2;
     cout<<pos.size()<<endl;
 
     if(maxxLLR>=thetha){
-            cout<<"traped : ";
-
       filtered_set.push_back({{gridcenter_x,gridcenter_y},{}});
       int flag=0;
       for(long i=0;i<pos.size();i++){
@@ -362,11 +385,10 @@ vector<pair<long,long>> p2;
       if(flag)
         ++sett;
       else{
-        filtered_set.pop_back();
-        for(long i=0;i<pos.size();i++){
-            cout<<pos[i].x<<" "<<pos[i].y<<endl;
-        }
-        //   chod h
+//        filtered_set.pop_back();
+//        for(long i=0;i<pos.size();i++){
+//            cout<<pos[i].x<<" "<<pos[i].y<<endl;
+//        }
         cout<<"filter Breakout : "<<filtered_set.size()<<endl;
         return filtered_set;
       }
@@ -526,10 +548,10 @@ int main()
     //freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\outputgen.txt","w",stdout);
 
     long msim;
-    thetha=0;
+    thetha=11;
     rmin=2.5;
     alphaP=0.001;
-    msim=5;
+    msim=3;
 
     long n;
     cin>>n;
@@ -549,10 +571,12 @@ int main()
     pair<int,int> p=getplanearea(points);
     areaS=p.first;
     sidelength=p.second;
+//    cout<<sidelength<<endl;
     modP=points.size();
 
     //ceil to be chaged
-    lcell=ceil(rmin/2);
+    lcell=floor(rmin/2);
+//    cout<<lcell<<endl;
     N=ceil(sidelength/lcell);
     total_countGrid_cells=N*N;
     total_cubicGrid_cells=N*N*N;
