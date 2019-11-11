@@ -27,25 +27,23 @@ def draw(request):
     import os 
     import csv
 
-    w= open(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\static\myapp\inputgen.txt","w+")
-    ss=str(Coordinates.objects.all().count())+"\n"
-    w.write(ss)
-    for i in Coordinates.objects.all():
-        st=str(i.lat)+"\n"+str(i.longt)+"\n"
-        w.write(st)
-    w.close()
+    #w= open(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\static\myapp\inputgen.txt","w+")
+    #ss=str(Coordinates.objects.all().count())+"\n"
+    #for i in Coordinates.objects.all():
+    #    st=str(i.lat)+"\n"+str(i.longt)+"\n"
+    #    w.write(st)
+    #w.close()
 
-    data, temp = os.pipe() 
-    os.write(temp, bytes("5 10\n", "utf-8")); 
-    os.close(temp) 
-    os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\main.cpp -o a')
-    s = subprocess.check_output(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\a.exe", stdin = data, shell = True)
+    #data, temp = os.pipe() 
+    #os.write(temp, bytes("5 10\n", "utf-8")); 
+    #os.close(temp) 
+    #os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\main.cpp -o a')
+    #s = subprocess.check_output(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\a.exe", stdin = data, shell = True)
     
     #main.cpp uses inputgen.txt to get input and saves ouput in
     #outputgen.txt file, now python takes result from that file
     
-    
-    return render(request,'myapp/draw.html',context)
+    return render(request,'myapp/plotcircles.html',{})
 
 def add(request):
     import csv

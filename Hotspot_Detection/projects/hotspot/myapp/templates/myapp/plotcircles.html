@@ -4,8 +4,8 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
       html { height: 100% }
-      body { height: 70%; margin: 0; padding: 0 }
-      #map_canvas { height: 70% }
+      body { height: 100%; margin: 10; padding: 10 }
+      #map_canvas { height: 100% }
     </style>
     <script type="text/javascript"
       src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBUuOtNyFrqUt5QwgwIhJPMtcaW8Hps6Tk">
@@ -30,11 +30,6 @@ $(document).ready(function() {
     $.getJSON( "http://127.0.0.1:8000/static/myapp/fcircle.txt"   , function(json1) {
       $.each(json1, function(key, data) {
 
-        var coord = new google.maps.LatLng(data.center[0], data.center[1]);
-        // Creating a marker and putting it on the map
-        var marker = new google.maps.Marker({position: coord, map: map});
-        console.log(data.lat+' '+data.lng);
-        
         var cityCircle = new google.maps.Circle({
             strokeColor: '#FF0000',
             strokeOpacity: 0.8,
@@ -45,6 +40,16 @@ $(document).ready(function() {
             center: data.center,
             radius: Math.sqrt(data.population) * 100
           });
+      });
+    });
+  });
+  $(document).ready(function() {
+    $.getJSON( "http://127.0.0.1:8000/static/myapp/foo.txt"   , function(json1) {
+      $.each(json1, function(key, data) {
+        var coord = new google.maps.LatLng(data.lat, data.lng);
+        // Creating a marker and putting it on the map
+        var marker = new google.maps.Marker({position: coord, map: map});
+        console.log(data.lat+' '+data.lng);
       });
     });
   });
