@@ -170,23 +170,56 @@ long double  log_LRGrid_Upperbound(long nMecc,long nMfcc,long double  areaMecc,l
 }
 bool lieincircle(long double  a,long double  b,long r,long double x,long double y){
   long double  rd=(x-a)*(x-a)+(y-b)*(y-b);
-  return rd*1.0<=r*r;
+  return rd<=r*r;
 }
-bool Grid_lieincircle(long double  a,long double  b,long r,long double x,long double y){
-  long double  rd=(x-a)*(x-a)+(y-b)*(y-b);
-  rd=sqrt(rd);//distance of grid center from circle center
-  rd-=r;//extra distance need to cover to the center of grid
-  if(rd<=lcell/2)return true;
-  return false;
+
+bool intersect(double a,double b,double c,double x,double y,double r)
+{
+    double dist = (abs(a * x + b * y + c)) /  sqrt(a * a + b * b);
+
+    // Checking if the distance is less than,
+    // greater than or equal to radius.
+    if (r >= dist)
+      return true;
+        else
+        return false;
+}
+bool findFoot(double a, double b, double c,double x1, double y1 ,double lx,double rx,double ly,double ry )
+{
+    double temp = -1 * (a * x1 + b * y1 + c) / (a * a + b * b);
+    double x = temp * a + x1;
+    double y = temp * b + y1;
+    if(lx<=x && x<=rx && ly<=y && y<=ry)
+    return true;
+    return false;
+}
+
+bool Grid_lieincircle(long double  a,long double  b,long r,long i,long j){
+
+  int xmin=grid[i][j].Xmin;
+  int xmax=grid[i][j].Xmax;
+  int ymin=grid[i][j].Ymin;
+  int ymax=grid[i][j].Ymax;
+  bool ans=false;
+  ans|=lieincircle(a,b,xmin,ymin,r)|lieincircle(a,b,xmin,ymax,r)|lieincircle(a,b,xmax,ymax,r)|lieincircle(a,b,xmax,ymin,r);
+  if(ans)
+    return ans;
+  ans|=(intersect(0,xmax-xmin,-(xmax-xmin)*ymax,a,b,r) && findFoot(0,xmax-xmin,-(xmax-xmin)*ymax,a,b,xmin,xmax,ymax,ymax));
+  ans|=(intersect(ymin-ymax,0,-(-ymax+ymin)*xmax,a,b,r) && findFoot(ymin-ymax,0,-(-ymax+ymin)*xmax,a,b,xmax,xmax,ymin,ymax));
+  ans|=(intersect(0,xmax-xmin,-(xmax-xmin)*ymin,a,b,r) && findFoot(0,xmax-xmin,-(xmax-xmin)*ymin,a,b,xmin,xmax,ymin,ymin));
+  ans|=(intersect(ymin-ymax,0,-(ymin-ymax)*xmin,a,b,r) && findFoot(ymin-ymax,0,-(ymin-ymax)*xmin,a,b,xmin,xmin,ymin,ymax));
+  return  ans;
+
 }
 
 long checker(long double cx,long double cy,long radius,long i,long j,int var){
+
+    long double  cenx=(grid[i][j].Xmin+grid[i][j].Xmax)/2;
+    long double  ceny=(grid[i][j].Ymin+grid[i][j].Ymax)/2;
+    if(cenx==cx && ceny == cy)
+      return radius;
     if(var==0){
-      coord *a=new coord(grid[i][j].Xmin,grid[i][j].Ymin);
-        coord *b=new coord(grid[i][j].Xmin,grid[i][j].Ymax);
-        coord *c=new coord(grid[i][j].Xmax,grid[i][j].Ymin);
-        coord *d=new coord(grid[i][j].Xmax,grid[i][j].Ymax);
-      while((lieincircle(cx,cy,radius,a->x,a->y) || lieincircle(cx,cy,radius,b->x,b->y) || lieincircle(cx,cy,radius,c->x,c->y) || lieincircle(cx,cy,radius,d->x,d->y))==false){
+      while(Grid_lieincircle(cx,cy,radius,i,j) == false){
         radius++;
       }
     }
