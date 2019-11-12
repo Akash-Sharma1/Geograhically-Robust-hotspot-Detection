@@ -41,14 +41,9 @@ void remove_negetive(vector<coord> &pos){
     find_bottom_left(pos);
     sf = { pxmin,pymin };
    // sf.first--;sf.second--;
-    pxmin=inf,pymin=inf,pxmax=0,pymax=0;
     for(long i=0;i<pos.size();i++){
         pos[i].x-=sf.first;
         pos[i].y-=sf.second;
-        pxmin=min(pos[i].x,pxmin);
-        pymin=min(pos[i].y,pymin);
-        pxmax=max(pos[i].x,pxmax);
-        pymax=max(pos[i].y,pymax);
     }
 }
 long double scale;
@@ -67,8 +62,8 @@ void variate(vector<coord>&pos){
       ymin= min(ymin, pos[i].y);
     }
 //    cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
-    factorX= 100/(xmax-xmin);
-    factorY= 100/(ymax-ymin);
+    factorX= 20/(xmax-xmin);
+    factorY= 20/(ymax-ymin);
     //XXXXif(factorX <100) factorX= 100/factorX;
     //XXXXif(factorY < 100) factorY=100/factorY;
     scale=min(factorX,factorY);
@@ -76,13 +71,6 @@ void variate(vector<coord>&pos){
       pos[i].x*=scale;
       pos[i].y*=scale;
     }
-    for(int i=0;i<pos.size();i++){
-      xmax= max(xmax, pos[i].x);
-      ymax= max(ymax, pos[i].y);
-      xmin= min(xmin, pos[i].x);
-      ymin= min(ymin, pos[i].y);
-    }
-
 //    cout << factorX << "      " << factorY << endl;
 //    cout << xmax << " " << xmin << " " << ymin << " " << ymax << endl;
 
@@ -118,7 +106,7 @@ pair<int,int> getplanearea(vector<coord> &pos){
 
 /////////////////////////////////////////////////////// COUNT GRID ////////////////////////////////////
 long modP,areaS,sidelength;
-long double lcell;
+long lcell;
 long N,total_countGrid_cells,total_cubicGrid_cells;
 
 // A SINGLE CELL CELLCOUNT NUMBER OF POINTS FROM XMIN TO XMAX, YMIN TO YMAX IN A SINGLE CELL
@@ -311,10 +299,10 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> pos,long 
     cout<<grid[15][41].Xmax<<endl;
 
   for(long i=0;i<pos.size();i++){
-    long x=pos[i].x/lcell;
-    long y=pos[i].y/lcell;
+    long x=floor(pos[i].x)/lcell;
+    long y=floor(pos[i].y)/lcell;
     grid[x][y].cell_count++;
-    if(pos[i].x>=grid[x][y].Xmin && pos[i].x<=grid[x][y].Xmax && pos[i].y>=grid[x][y].Ymin && pos[i].y<=grid[x][y].Ymax){
+    if(floor(pos[i].x)>=grid[x][y].Xmin &&floor(pos[i].x)<=grid[x][y].Xmax &&floor(pos[i].y)>=grid[x][y].Ymin && floor(pos[i].y)<=grid[x][y].Ymax){
       continue;
     }
     else {cout<<"FAULT IS HERE : "<<pos[i].x<<" "<<pos[i].y<<" "<<lcell<<" "<<x<<" "<<y;
@@ -342,7 +330,7 @@ vector<pair<long,long>> p2;
         p1=MECC_MFCC(cenx,ceny,i,j,0);
         p2=MECC_MFCC(cenx,ceny,i,j,1);
 
-        for(long r=ceil(rmin);r<p1.size();r++){
+        for(long r=ceil(rmin);r<N/4;r++){
 
           long double areaMecc=lcell*lcell*p1[r].second;
           long double areaMfcc=lcell*lcell*p2[r].second;
@@ -368,14 +356,17 @@ vector<pair<long,long>> p2;
     cout<<pos.size()<<endl;
 
     if(maxxLLR>=thetha){
+      long double a=maxxX,b=maxxY,c=maxxR;
+      scaleback(a,b,c);
+      cout<<a<<" "<<b<<" "<<c<<endl;
       filtered_set.push_back({{gridcenter_x,gridcenter_y},{}});
       int flag=0;
       for(long i=0;i<pos.size();i++){
         if(lieincircle(maxxX,maxxY,maxxR,pos[i].x,pos[i].y)){
           filtered_set[sett].second.push_back(pos[i]);
          // gotoxy(pos[i].x,pos[i].y);cout<<"*";
-          long rx=pos[i].x/lcell;
-          long ry=pos[i].y/lcell;
+          long rx=floor(pos[i].x)/lcell;
+          long ry=floor(pos[i].y)/lcell;
           grid[rx][ry].cell_count--;
           pos.erase(pos.begin()+i);
           i--;
@@ -442,8 +433,8 @@ bool is_pointliesincell(pair<int,int> c,long double  x,long double  y){
     double Xmax=grid[c.first][c.second].Xmax+1;
     double Ymin=grid[c.first][c.second].Ymin-1;
     double Ymax=grid[c.first][c.second].Ymax+1;
-    if(x>=Xmin && x<=Xmax){
-        if(y>=Ymin && y<=Ymax)return true;
+    if(floor(x)>=Xmin && floor(x)<=Xmax){
+        if(floor(y)>=Ymin && floor(y)<=Ymax)return true;
     }
     return false;
 }
@@ -557,9 +548,9 @@ int main()
     cin>>n;
     //cout<<n<<endl;
 
-    vector<coord> points(5000);
+    vector<coord> points(1000);
 
-    for(long i=0;i<5000;i++){
+    for(long i=0;i<1000;i++){
       string x;
       cin>>x;
       points[i].x=stod(x);
