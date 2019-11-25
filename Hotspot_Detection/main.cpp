@@ -330,7 +330,7 @@ vector<pair<long,long>> p2;
         p1=MECC_MFCC(cenx,ceny,i,j,0);
         p2=MECC_MFCC(cenx,ceny,i,j,1);
 
-        for(long r=ceil(rmin);r<N/4;r++){
+        for(long r=ceil(rmin);r<N/2;r++){
 
           long double areaMecc=lcell*lcell*p1[r].second;
           long double areaMfcc=lcell*lcell*p2[r].second;
@@ -535,7 +535,7 @@ void generatemontecarlo(long m,long double  montecarlo[],long double  areaS,long
 int main()
 {
 
-    freopen("inputgen.txt","r",stdin);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\inputgen.txt","r",stdin);
     //freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\outputgen.txt","w",stdout);
 
     long msim;
@@ -566,14 +566,14 @@ int main()
     modP=points.size();
 
     //ceil to be chaged
-    lcell=floor(rmin/2);
+    lcell=ceil(rmin/2);
 //    cout<<lcell<<endl;
     N=ceil(sidelength/lcell);
     total_countGrid_cells=N*N;
     total_cubicGrid_cells=N*N*N;
 
 
-    //cout<<areaS<<" "<<N<<" "<<total_countGrid_cells<<endl;
+    cout<<rmin<<" "<<N<<" "<<lcell<<endl;
 
     //3 PHASES
     vector<pair<pair<int,int>,vector<coord> > > fset= Filter_Phase(points,thetha);
