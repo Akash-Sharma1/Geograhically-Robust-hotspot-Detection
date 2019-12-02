@@ -16,13 +16,16 @@
       var map;
 function initialize() {
         var mapOptions = {
-            center: new google.maps.LatLng(40.7303 ,-73.9289),
+            center: new google.maps.LatLng(40.73434766 , -73.98454737548828),
             zoom: 15,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         map = new google.maps.Map(document.getElementById("map_canvas"),
             mapOptions);
 
+
+            // 40.73434766 , -73.98454737548828
+            //  28.14 , 77.2127
 
 //  {
 //    center: {lat: 41.878, lng: -87.629},
@@ -32,7 +35,7 @@ function initialize() {
 $(document).ready(function() {
   var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
 
-    $.getJSON( "http://127.0.0.1:8000/static/myapp/fcircle.txt?rand=23423423"   , function(json1) {
+    $.getJSON( "http://127.0.0.1:8000/static/myapp/Allout.txt?rand=23423423"   , function(json1) {
       $.each(json1, function(key, data) {
         
         var coord = new google.maps.LatLng(data.center.lat, data.center.lng);
@@ -55,7 +58,7 @@ $(document).ready(function() {
     });
   });
   $(document).ready(function() {
-    $.getJSON( "http://127.0.0.1:8000/static/myapp/foo.txt?rand=23423423"   , function(json1) {
+    $.getJSON( "http://127.0.0.1:8000/static/myapp/Allin.txt?rand=23423423"   , function(json1) {
       $.each(json1, function(key, data) {
         var coord = new google.maps.LatLng(data.lat, data.lng);
         // Creating a marker and putting it on the map

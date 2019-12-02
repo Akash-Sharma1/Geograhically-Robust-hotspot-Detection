@@ -27,18 +27,17 @@ def draw(request):
     import os 
     import csv
 
-    #w= open(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\static\myapp\inputgen.txt","w+")
-    #ss=str(Coordinates.objects.all().count())+"\n"
-    #for i in Coordinates.objects.all():
-    #    st=str(i.lat)+"\n"+str(i.longt)+"\n"
-    #    w.write(st)
-    #w.close()
-
-    #data, temp = os.pipe() 
-    #os.write(temp, bytes("5 10\n", "utf-8")); 
-    #os.close(temp) 
-    #os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\main.cpp -o a')
-    #s = subprocess.check_output(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\a.exe", stdin = data, shell = True)
+    w= open(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\static\myapp\inputgen.txt","w+")
+    ss=str(Coordinates.objects.all().count())+"\n"
+    for i in Coordinates.objects.all():
+        st=str(i.lat)+"\n"+str(i.longt)+"\n"
+        w.write(st)
+    w.close()
+    data, temp = os.pipe() 
+    os.write(temp, bytes("5 10\n", "utf-8")); 
+    os.close(temp) 
+    os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\main.cpp -o a')
+    os.system(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\a.exe")
     
     #main.cpp uses inputgen.txt to get input and saves ouput in
     #outputgen.txt file, now python takes result from that file
@@ -58,7 +57,7 @@ def add(request):
             list.append([row[5],row[6]])
         c=0
         for data in list:
-            if c>1000:
+            if c>500:
                 break;
             if c>0:
                 q = Coordinates(lat=data[0],longt=data[1])

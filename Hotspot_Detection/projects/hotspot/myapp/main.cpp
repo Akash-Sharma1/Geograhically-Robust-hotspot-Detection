@@ -288,7 +288,6 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> pos,long 
     for(int j=0;j<=N;j++){
         grid[i][j].Xmin=gridx;
         grid[i][j].Xmax=gridx+lcell-.00000001;
-        //cout<<grid[i][j].Xmax<<endl;
         grid[i][j].Ymin=gridy;
         grid[i][j].Ymax=gridy+lcell-.00000001;
         gridy+=lcell;
@@ -364,7 +363,6 @@ vector<pair<long,long>> p2;
       for(long i=0;i<pos.size();i++){
         if(lieincircle(maxxX,maxxY,maxxR,pos[i].x,pos[i].y)){
           filtered_set[sett].second.push_back(pos[i]);
-         // gotoxy(pos[i].x,pos[i].y);cout<<"*";
           long rx=floor(pos[i].x)/lcell;
           long ry=floor(pos[i].y)/lcell;
           grid[rx][ry].cell_count--;
@@ -376,10 +374,6 @@ vector<pair<long,long>> p2;
       if(flag)
         ++sett;
       else{
-//        filtered_set.pop_back();
-//        for(long i=0;i<pos.size();i++){
-//            cout<<pos[i].x<<" "<<pos[i].y<<endl;
-//        }
         cout<<"filter Breakout : "<<filtered_set.size()<<endl;
         return filtered_set;
       }
@@ -452,7 +446,6 @@ vector<pair<Circle,long double > > Refine_Phase(vector<pair<pair<int,int>,vector
 
     while(fset[i].second.size()!=0 && r>=rmin){
 
-    //cout<<fset[i].second.size()<<endl;
       Circle C=SEC(fset[i].second);
       C.noofpoints=fset[i].second.size();
       r=C.radius;
@@ -486,22 +479,6 @@ vector<pair<Circle,long double > > Refine_Phase(vector<pair<pair<int,int>,vector
   return candidate_circles;
 }
 
-/*
-long getPoissonRandom(long u)
-{
-  long double  L=exp((-1)*u);
-  long double  p = 1.0;
-  long k = 0;
-
-  do {
-    //cout<<"1"<<endl;
-    k++;
-    p *= rand_long double ();
-  } while (p > L);
-
-  return k - 1;
-}
-*/
 long double  rand_double () {
    return rand()/(long double )RAND_MAX;
 }
@@ -518,7 +495,6 @@ void generatemontecarlo(long m,long double  montecarlo[],long double  areaS,long
             long double  lon=fmod(rand(),sidelength);
             if(lon<0)lat=-lon;
             crd.push_back({lat,lon});
-            //cout<<lat<<" "<<lon<<endl;
         }
         vector<pair<pair<int,int>,vector<coord> > > fset= Filter_Phase(crd,thetha);
         vector<pair<Circle,long double > > Ctemp=Refine_Phase(fset,thetha,rmin);
@@ -536,7 +512,7 @@ int main()
 {
 
     freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\inputgen.txt","r",stdin);
-    //freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\outputgen.txt","w",stdout);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\d2out.txt","w",stdout);
 
     long msim;
     thetha=11;
@@ -579,6 +555,9 @@ int main()
     vector<pair<pair<int,int>,vector<coord> > > fset= Filter_Phase(points,thetha);
     // circles, logirithmic value
     vector<pair<Circle,long double > > candidate_circles=Refine_Phase(fset,thetha,rmin);
+
+    cout<<candidate_circles.size()<<endl;
+
     srand(time(NULL));
     long double  montecarlo[msim];
     for(long i=0;i<msim;i++)
@@ -589,7 +568,6 @@ int main()
 
     vector<Circle> hotspotCircles;
     for(long i=0;i<candidate_circles.size();i++){
-        // will use binary search
         for(long j=0;j<msim;j++){
             if(candidate_circles[i].second>montecarlo[j]){
                 long double  pval=((long double )j)/((long double )msim+1);
@@ -600,7 +578,7 @@ int main()
             }
         }
     }
-
+    cout<<hotspotCircles.size()<<endl;
     for(long i=0;i<hotspotCircles.size();i++){
          scaleback(hotspotCircles[i].x,hotspotCircles[i].y,hotspotCircles[i].radius);
          cout << hotspotCircles[i].x<<" " <<hotspotCircles[i].y<<" " <<hotspotCircles[i].radius << endl;
