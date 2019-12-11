@@ -102,7 +102,7 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> &pos){
         }
       }
       deleted+=flag;
-      cout<<"items: "<<flag<<endl;
+     // cout<<"items: "<<flag<<endl;
 //      if(!flag){
 //        cout<<"filter Breakout : "<<filtered_set.size()<<endl;
 //        break;
@@ -111,6 +111,6 @@ vector<pair<pair<int,int>,vector<coord> > > Filter_Phase(vector<coord> &pos){
     }
     else break;
   }
-  cout<<"filter done : "<<filtered_set.size()<<endl;
+  //cout<<"filter done : "<<filtered_set.size()<<endl;
   return filtered_set;
 }

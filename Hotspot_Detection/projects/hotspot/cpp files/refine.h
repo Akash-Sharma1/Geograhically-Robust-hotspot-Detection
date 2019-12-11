@@ -53,6 +53,6 @@ vector<pair<Circle,double > > Refine_Phase(vector<pair<pair<int,int>,vector<coor
       candidate_circles.push_back({maxC,maxllr});
     }
   }
-  cout<<"refine done : "<<candidate_circles.size()<<endl;
+ // cout<<"refine done : "<<candidate_circles.size()<<endl;
   return candidate_circles;
 }

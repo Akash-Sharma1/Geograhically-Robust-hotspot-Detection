@@ -36,12 +36,16 @@ def draw(request):
     data, temp = os.pipe() 
     os.write(temp, bytes("5 10\n", "utf-8")); 
     os.close(temp) 
-    #os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\main.cpp -o a')
-    #os.system(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\a.exe")
     
-    #main.cpp uses inputgen.txt to get input and saves ouput in
-    #outputgen.txt file, now python takes result from that file
+    os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\pointsjsonconv.cpp -o pcon')
+    os.system(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\pcon.exe")
+      
+    os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\main.cpp -o a')
+    os.system(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\a.exe")
     
+    os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\main.cpp -o pout')
+    os.system(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\pout.exe")
+
     return render(request,'myapp/plotcircles.html',{})
 
 def add(request):

@@ -7,8 +7,8 @@ using namespace std;
 int main()
 {
 
-    freopen("randompoints.txt","r",stdin);
-    freopen("inpoints.txt","w",stdout);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\inputgen.txt","r",stdin);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\testin.txt","w",stdout);
     cout<<"[\n";
     string s;cin>>s;
     int n=min(500,stoi(s));
@@ -25,4 +25,4 @@ int main()
     return 0;
 }
 
-//  AIzaSyBUuOtNyFrqUt5QwgwIhJPMtcaW8Hps6Tk --map api
+

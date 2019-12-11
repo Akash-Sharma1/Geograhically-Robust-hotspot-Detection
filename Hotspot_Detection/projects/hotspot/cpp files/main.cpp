@@ -65,9 +65,8 @@ bool lieincircle(double  a,double  b,double r,double x,double y){
 int main()
 {
 
-    freopen("randompoints.txt","r",stdin);
-    //freopen("outputgen.txt","w",stdout);
-    //freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\outputgen.txt","w",stdout);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\inputgen.txt","r",stdin);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\outputgen.txt","w",stdout);
     int msim=10,n;
     thetha=10;
     double alphaP=0.001;
@@ -89,7 +88,7 @@ int main()
     N=ceil(differ/lcell);
     rearth=distance(0,lcell);
 
-    cout<<"area: "<<areaS<<"\nedge: "<<sidelength<<"\nN: "<<N<<"\ncell_length: "<<lcell<<"\nrearth: "<<rearth<<endl<<endl;
+    //cout<<"area: "<<areaS<<"\nedge: "<<sidelength<<"\nN: "<<N<<"\ncell_length: "<<lcell<<"\nrearth: "<<rearth<<endl<<endl;
 
     vector<pair<pair<int,int>,vector<coord> > > fset= Filter_Phase(points);
     vector<pair<Circle,double > > candidate_circles=Refine_Phase(fset);

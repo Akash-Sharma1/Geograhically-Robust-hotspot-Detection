@@ -7,8 +7,8 @@ using namespace std;
 int main()
 {
 
-    freopen("outputgen.txt","r",stdin);
-    freopen("plotcircles.txt","w",stdout);
+   freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\outputgen.txt","r",stdin);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\testout.txt","w",stdout);
     cout<<"[\n";
     string s;cin>>s;
     int n=stoi(s);
