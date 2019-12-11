@@ -36,8 +36,8 @@ def draw(request):
     data, temp = os.pipe() 
     os.write(temp, bytes("5 10\n", "utf-8")); 
     os.close(temp) 
-    os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\main.cpp -o a')
-    os.system(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\a.exe")
+    #os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\main.cpp -o a')
+    #os.system(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\a.exe")
     
     #main.cpp uses inputgen.txt to get input and saves ouput in
     #outputgen.txt file, now python takes result from that file
@@ -58,10 +58,9 @@ def add(request):
         c=0
         for data in list:
             if c>500:
-                break;
+                break
             if c>0:
                 q = Coordinates(lat=data[0],longt=data[1])
                 q.save()
             c += 1
     return HttpResponse("Data set Updated")
-
