@@ -65,15 +65,15 @@ bool lieincircle(double  a,double  b,double r,double x,double y){
 int main()
 {
 
-    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\inputgen.txt","r",stdin);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\input.txt","r",stdin);
     freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\outputgen.txt","w",stdout);
     int msim=10,n;
     thetha=10;
     double alphaP=0.001;
 
     cin>>n;
-    vector<coord> points(500);
-    for(int i=0;i<500;i++){
+    vector<coord> points(n);
+    for(int i=0;i<n;i++){
       string x;
       cin>>x;
       points[i].x=stod(x);

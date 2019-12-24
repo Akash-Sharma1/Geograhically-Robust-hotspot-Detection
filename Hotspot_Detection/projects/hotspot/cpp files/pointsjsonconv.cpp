@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
 
-    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\inputgen.txt","r",stdin);
+    freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\input.txt","r",stdin);
     freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\static\\myapp\\testin.txt","w",stdout);
     cout<<"[\n";
     string s;cin>>s;
@@ -19,7 +19,7 @@ int main()
     cin>>x;
     cout<<"\t\t\"lng\" : "<<x<<"\n\t}";
     if(i<n-1)cout<<",\n";
-    }
+   }
 
     cout<<"]\n";
     return 0;

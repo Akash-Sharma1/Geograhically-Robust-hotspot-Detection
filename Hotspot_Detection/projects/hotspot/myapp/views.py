@@ -38,15 +38,15 @@ def draw(request):
     os.close(temp) 
     
     os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\pointsjsonconv.cpp -o pcon')
-    os.system(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\pcon.exe")
+    os.system("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\cpp files\\pcon.exe")
       
     os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\main.cpp -o a')
-    os.system(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\a.exe")
+    os.system("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\cpp files\\a.exe")
     
-    os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\main.cpp -o pout')
-    os.system(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\pout.exe")
+    os.system(r'g++ C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\cpp files\pointsjsonconv.cpp -o pout')
+    os.system("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\cpp files\\pout.exe")
 
-    return render(request,'myapp/plotcircles.html',{})
+    return render(reque st,'myapp/plotcircles.html',{})
 
 def add(request):
     import csv
