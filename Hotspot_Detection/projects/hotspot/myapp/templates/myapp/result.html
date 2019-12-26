@@ -1,0 +1,63 @@
+
+<style>
+    .grid-container {
+        display: grid;
+        height: 630px;
+        width: 1350px;
+        align-content: start;
+        grid-template-columns: repeat(133, 10px);
+        grid-template-rows: repeat(63, 10px);
+        grid-gap: 0px;
+        background-color: #fffff8;
+        padding: 0px;
+    }
+    
+    .grid-container > div {
+        border: 1px solid #5BDD99;
+        background-color: #fffff8;
+        text-align: center;
+        padding: 0px 0;   
+        color:rgba(255, 255, 255, 0.8)
+    }
+    </style>
+    
+    <div id="draw"></div>
+    Dataset:<input name="text" id="tt" value={{stock}}>
+    Result:<input name="text" id="l2" value={{final}}>
+
+<script>
+
+    var str="<div class=\"grid-container\">"
+    for(i = 0;i<=133*63;i++){str += "<div id='"+i+"' ></div>";}
+    str+= "</div>";
+    document.getElementById("draw").innerHTML += str;
+    
+    var valgrid=document.getElementById('tt').value;
+    
+    for(i=0;i<valgrid.length;i++){
+        if(valgrid[i]==1){
+            document.getElementById(i).innerHTML='*';
+            document.getElementById(i).style.border = '1px solid #5BDD99';
+            document.getElementById(i).style.color = '#000000';
+        }
+        else{
+            document.getElementById(i).innerHTML='';
+            document.getElementById(i).style.border = '1px solid #5BDD99';
+            document.getElementById(i).style.color = 'rgba(255, 255, 255, 0.8)';
+        }
+    }
+
+    valgrid=document.getElementById('l2').value;
+    
+    for(i=0;i<valgrid.length;i++){
+        if(valgrid[i]==1){
+            document.getElementById(i).innerHTML='*';
+            document.getElementById(i).style.border = '1px solid #ff0000';
+            document.getElementById(i).style.color = '#ff0000';
+        }
+    }
+
+    
+</script>    
+    
+    

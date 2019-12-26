@@ -3,9 +3,10 @@ from django.shortcuts import render
 from .models import Coordinates
 from django.http import HttpResponseRedirect
 import random 
-import os
 import subprocess
 import math
+from queue import Queue 
+  
 
 def draw(request):
     string="0"
@@ -25,9 +26,9 @@ def draw(request):
             for i in dataset:
                 f.write(str(i[0])+" "+str(i[1])+"\n")
             f.close()
-            ###
         subprocess.call(["g++","C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\cpp files\\main.cpp"])
         tmp=subprocess.call("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\a.exe")
+        
         res=[]
         with open(r'C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\cpp files\outputgen.txt', 'r') as reader:
             for line in reader:
@@ -36,14 +37,40 @@ def draw(request):
                 for i in line:
                     temp.append(math.floor(float(i)))  
                 res.append(temp)
+        dx=[-1,0,1]
+        last=[]
         for data in res:
-            cx=data[0]
-            cy=data[1]
+            vis=[ [0 for i in range(0,200)] for i in range(0,200) ]
+            c=[data[0],data[1]]
+            vis[data[0]][data[1]]=1
             cr=data[2]
-            for i in range(0,len(string)):
-                x=int(i/133)
-                y=i%133
-                if (x-cx)*(x-cx)+(y-cy)*(y-cy)<=cr*cr:
-                    string=string[:i]+'1'+string[i+1:]
-        return render(request,'myapp/grid.html',{'stock': string})
+            q = Queue(maxsize = 133*63+5)
+            q.put(c)
+            while q.qsize()>0:
+                node=q.get()
+                x=node[0]
+                y=node[1]
+                flag=0
+                for i in dx:
+                    for j in dx:
+                        newx=x+i
+                        newy=y+j
+                        if newx>=0 and newx<63 and newy>=0 and newy<133 and vis[newx][newy]==0:
+                            if (newx-c[0])*(newx-c[0])+(newy-c[1])*(newy-c[1])<=cr*cr:
+                                vis[newx][newy]=1
+                                flag=1
+                                q.put([newx,newy])
+                if flag==0:
+                    last.append(node)
+        final=""
+        for i in range(0,133*63):
+            final+='0'
+        count=0
+        for i in last:
+            x=i[0]
+            y=i[1]
+            j=x*133+y
+            final=final[:j]+'1'+final[j+1:]
+            count+=1
+        return render(request,'myapp/result.html',{'stock': string,'final':final})
     return render(request,'myapp/grid.html',{'stock': string})

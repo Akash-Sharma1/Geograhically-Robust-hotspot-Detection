@@ -166,8 +166,13 @@ public:
 				////cout<<"filterset: "<<i<<" : "<<circleGridULR[i][0]<<" "<<circleGridULR[i][1]<<" "<<circleGridULR[i][2]<<" "<<circleGridULR[i][7]<<endl;
 			}
 			// equivalent to "sort rows with the 8th column"
-
-			//sort(circleGridULR,circleGridULR+ii,compare);
+			for (int i=0;i<ii;i++){
+                if(circleGridULR[i][7]>circleGridULR[0][7]){
+                    for(int j=0;j<8;j++){
+                        swap(circleGridULR[0][j],circleGridULR[i][j]);
+                    }
+                }
+			}
 			//Removing Duplicates%%%%%%%%%%%%%%%%%%%
 			int nRows=unique(ii);
 			ii=nRows;
