@@ -4,8 +4,8 @@ class dataset{
     vector<coord> activitySet;
     public:
     int readdataset(){
-        freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\cpp files\\demofile.txt","r",stdin);
-        freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\cpp files\\outputgen.txt","w",stdout);
+        freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\hotspot\\myapp\\cpp files\\demofile.txt","r",stdin);
+        freopen("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\hotspot\\myapp\\cpp files\\outputgen.txt","w",stdout);
         int n;
         cin>>n;
         string x,y;

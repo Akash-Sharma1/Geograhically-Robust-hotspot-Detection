@@ -21,16 +21,16 @@ def draw(request):
                 y=i%133
                 temp=[x,y]
                 dataset.append(temp)
-            f = open(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\cpp files\demofile.txt", "w")
+            f = open(r"C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\hotspot\myapp\cpp files\demofile.txt", "w")
             f.write(str(len(dataset))+"\n")
             for i in dataset:
                 f.write(str(i[0])+" "+str(i[1])+"\n")
             f.close()
-        subprocess.call(["g++","C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\myapp\\cpp files\\main.cpp"])
-        tmp=subprocess.call("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\Hotspot_Detection\\projects\\hotspot\\a.exe")
+        subprocess.call(["g++","C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\hotspot\\myapp\\cpp files\\main.cpp"])
+        tmp=subprocess.call("C:\\Users\\aakas\\Documents\\Geograhically-Robust-hotspot-Detection\\hotspot\\a.exe")
         
         res=[]
-        with open(r'C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\Hotspot_Detection\projects\hotspot\myapp\cpp files\outputgen.txt', 'r') as reader:
+        with open(r'C:\Users\aakas\Documents\Geograhically-Robust-hotspot-Detection\hotspot\myapp\cpp files\outputgen.txt', 'r') as reader:
             for line in reader:
                 line=line.split()
                 temp=[]
