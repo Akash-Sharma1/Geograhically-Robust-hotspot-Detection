@@ -71,14 +71,19 @@
 		// same as "setdiff" in Matlab
 		map<pair<double,double> ,int> mp;
 		for (int i = filterset[counter].size()-1; i >= 0; i--){
-            mp[{filterset[counter][i].x,filterset[counter][i].y}]++;
+            mp[{filterset[counter][i].x,filterset[counter][i].y}]=1;
+			
 		}
-		for(int i=0;i<Dataset.pointSet.size();i++){
-            if( mp[ {Dataset.pointSet[i].x,Dataset.pointSet[i].y} ] == 0){
-                mp[ {Dataset.pointSet[i].x,Dataset.pointSet[i].y} ] =1;
-                Dataset.pointSet.erase(Dataset.pointSet.begin()+i);
-                i--;
-            }
+		int flag=0;
+		while(!flag){
+			flag=1;
+			for(int i=0;i<Dataset.pointSet.size();i++){
+				if( mp[ {Dataset.pointSet[i].x,Dataset.pointSet[i].y} ] == 1){
+					flag=0;
+					Dataset.pointSet.erase(Dataset.pointSet.begin()+i);
+					i--;
+				}
+			}
 		}
 	}
 

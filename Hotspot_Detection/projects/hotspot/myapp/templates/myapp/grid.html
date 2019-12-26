@@ -27,6 +27,7 @@
     <form action="http://127.0.0.1:8000/" method="POST">
         {% csrf_token %}
         Dataset:<input name="text" id="tt" value={{stock}}>
+        <button type="button" onclick='addfunc()' id='add'>Add dataset</button>
         <button type="submit" onclick='loadingfunc()' id='sub'>See Hotspots</button>
         <input name="ranx" id="randx" value='50' >
         <button type="button" onclick='randomize()'>Random set</button>
@@ -36,6 +37,22 @@
 
 </center>
 <script>
+    function addfunc(){
+        valgrid=document.getElementById('tt').value;
+        for(i=0;i<valgrid.length;i++){
+            if(valgrid[i]==1){
+                document.getElementById(i).innerHTML='*';
+                document.getElementById(i).style.border = '1px solid #000000';
+                document.getElementById(i).style.color = '#000000';
+            }
+            else{
+                document.getElementById(i).innerHTML='';
+                document.getElementById(i).style.border = '1px solid #ffa94d';
+                document.getElementById(i).style.color = 'rgba(255, 255, 255, 0.8)';
+            }
+        }
+        alert("Dataset added");
+    }
     function loadingfunc(){ 
         freezefunc();
         var str="<span class=\"spinner-grow spinner-grow-sm\" role=\"status\" aria-hidden=\"true\"></span><span class=\"sr-only\">Loading...</span>";
