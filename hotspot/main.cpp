@@ -1,13 +1,15 @@
 #include <bits/stdc++.h>
 using namespace std;
 const long long inf=1e9;
-const double PI
- = 3.1415926535897;
+const double PI= 3.1415926535897;
 
 #include "init.h"
 #include "dataset.h"
 
 #include "SEC.h"
+
+
+
     countgridcell countGridCells[100][100];
     double circleGridB[100][100][100];
     double circleGridc[100][100][100];
@@ -272,7 +274,7 @@ public:
 				}
 			}
 			for (int i = 0; i < filterset.size(); i++){
-				if (finalLR[i][6] > 0){
+				if (finalLR[i][6] > theta){
 					cout<<finalLR[i][0]<<" "<<finalLR[i][1]<<" "<<finalLR[i][2]<<endl;
 							//<<" area: "<<finalLR[i][3]<< " nPoints: " << finalLR[i][5] <<" LR: "<<finalLR[i][6]<<endl;
 				}

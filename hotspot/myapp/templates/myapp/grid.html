@@ -26,7 +26,7 @@
 <div>
     <form action="http://127.0.0.1:8000/" method="POST">
         {% csrf_token %}
-        Dataset:<input name="text" id="tt" value={{stock}}>
+        Dataset:<input name="text" id="tt" value={{stock}} onchange="addfunc()"> 
         <button type="button" onclick='addfunc()' id='add'>Add dataset</button>
         <button type="submit" onclick='loadingfunc()' id='sub'>See Hotspots</button>
         <input name="ranx" id="randx" value='50' >
@@ -52,6 +52,7 @@
             }
         }
         alert("Dataset added");
+        freezefunc();
     }
     function loadingfunc(){ 
         freezefunc();
