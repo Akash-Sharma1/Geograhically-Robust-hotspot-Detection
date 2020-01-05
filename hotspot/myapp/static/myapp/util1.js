@@ -63,7 +63,7 @@ function randomize(){
     for(h=0;h<hp;h++){
         var x=Math.floor((Math.random() * 63) + 0);
         var y=Math.floor((Math.random() * 133) + 0);
-        var r=Math.floor((Math.random() * 20) + 1);
+        var r=Math.floor((Math.random() * 15) + 1);
 
        var rndx=Math.floor((Math.random() * 103) + 93);
         for(i=0;i<valgrid.length;i++){
