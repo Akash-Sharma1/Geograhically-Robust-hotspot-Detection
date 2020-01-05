@@ -18,7 +18,7 @@ if(valgrid.length<133*63-1){
 else{
     //console.log("YES!");
     //console.log("thiswhole-> "+valgrid+" length="+valgrid.length);
-    freezefunc();
+    if(freeze==0)freezefunc();
     for(i=0;i<valgrid.length;i++){
     //console.log("this-> "+valgrid[i]);
         if(valgrid[i]==1){
@@ -44,29 +44,37 @@ function myfunc(i){
     valgrid=valgrid.substr(0,i)+'1'+valgrid.substr(i+1,valgrid.length-i);
     document.getElementById('tt').value = valgrid;
 }
-
+function clear(){
+    for(i=0;i<valgrid.length;i++){ 
+        valgrid=valgrid.substr(0,i)+'0'+valgrid.substr(i+1,valgrid.length-i);
+        document.getElementById(i).innerHTML='';
+        document.getElementById(i).style.border = '1px solid #ffa94d';
+        document.getElementById(i).style.color = 'rgba(255, 255, 255, 0.8)';
+    }
+    document.getElementById('tt').value = valgrid;
+}
 function randomize(){
     if(freeze==1){
         return;
     }
-    randx=document.getElementById("randx").value;
-    //console.log(randx);
-    randx=parseInt(randx);
-    //console.log(randx);
-    for(i=0;i<valgrid.length;i++){
-        var ran=Math.floor(Math.random() * randx);
-        //console.log(ran);
-        if(ran==1){
-            valgrid=valgrid.substr(0,i)+'1'+valgrid.substr(i+1,valgrid.length-i);
-            document.getElementById(i).innerHTML='*';
-            document.getElementById(i).style.border = '1px solid #000000';
-            document.getElementById(i).style.color = '#000000';
-        }
-        else{
-            valgrid=valgrid.substr(0,i)+'0'+valgrid.substr(i+1,valgrid.length-i);
-            document.getElementById(i).innerHTML='';
-            document.getElementById(i).style.border = '1px solid #ffa94d';
-            document.getElementById(i).style.color = 'rgba(255, 255, 255, 0.8)';
+    clear();
+    var hp=Math.floor((Math.random() * 6) + 1);
+    //console.log(hp);
+    for(h=0;h<hp;h++){
+        var x=Math.floor((Math.random() * 63) + 0);
+        var y=Math.floor((Math.random() * 133) + 0);
+        var r=Math.floor((Math.random() * 20) + 1);
+
+       var rndx=Math.floor((Math.random() * 53) + 13);
+        for(i=0;i<valgrid.length;i++){
+            var a=Math.floor(i/133);
+            var b=i%133;
+            if(i%rndx==0 || ((a-x)*(a-x)+(b-y)*(b-y)<=r*r && Math.floor((Math.random() * 5) + 1)%2==1) ){
+                valgrid=valgrid.substr(0,i)+'1'+valgrid.substr(i+1,valgrid.length-i);
+                document.getElementById(i).innerHTML='*';
+                document.getElementById(i).style.border = '1px solid #000000';
+                document.getElementById(i).style.color = '#000000';
+            }
         }
     }
     document.getElementById('tt').value = valgrid;

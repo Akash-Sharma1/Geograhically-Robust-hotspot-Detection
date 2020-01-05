@@ -204,13 +204,13 @@ public:
 			}
 		}
         // for debugging
-		for (int i = 0; i < filterset.size(); i++){
+	//	for (int i = 0; i < filterset.size(); i++){
 			//cout<<"filterset " <<i<< " size: " << filterset[i].size()<<endl;
 //			for (int j = 0; j < filterset[i].size(); j++){
 //				//cout<<"("<<filterset[i][j].x<<", "<<filterset[i][j].y<<") "<<endl;
 //			}
 //			//cout<<endl;
-		}
+		//}
 
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// ------------------------------- refine phase starts -----------------------
@@ -274,7 +274,7 @@ public:
 				}
 			}
 			for (int i = 0; i < filterset.size(); i++){
-				if (finalLR[i][6] > theta){
+				if(finalLR[i][6] > theta){
 					cout<<finalLR[i][0]<<" "<<finalLR[i][1]<<" "<<finalLR[i][2]<<endl;
 							//<<" area: "<<finalLR[i][3]<< " nPoints: " << finalLR[i][5] <<" LR: "<<finalLR[i][6]<<endl;
 				}

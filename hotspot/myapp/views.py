@@ -26,7 +26,7 @@ def draw(request):
             for i in dataset:
                 f.write(str(i[0])+" "+str(i[1])+"\n")
             f.close()
-        subprocess.call(["g++","main.cpp"])
+        #subprocess.call(["g++","main.cpp"])
         subprocess.call("a.exe")
         
         res=[]
