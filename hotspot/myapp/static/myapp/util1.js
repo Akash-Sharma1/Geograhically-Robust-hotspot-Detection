@@ -65,7 +65,7 @@ function randomize(){
         var y=Math.floor((Math.random() * 133) + 0);
         var r=Math.floor((Math.random() * 20) + 1);
 
-       var rndx=Math.floor((Math.random() * 53) + 13);
+       var rndx=Math.floor((Math.random() * 103) + 93);
         for(i=0;i<valgrid.length;i++){
             var a=Math.floor(i/133);
             var b=i%133;
