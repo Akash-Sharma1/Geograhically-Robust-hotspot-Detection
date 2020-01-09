@@ -218,7 +218,7 @@ public:
 		//cout<<"Refine phase starts!"<<endl;
 
 		//cout<<"filterset size: "<< filterset.size()<<endl;
-
+		dataset p;
 		if (filterset.size() > 0){
 
 			double finalLR[filterset.size()][7];
@@ -275,6 +275,7 @@ public:
 			}
 			for (int i = 0; i < filterset.size(); i++){
 				if(finalLR[i][6] > theta){
+					p.variate(finalLR[i][0],finalLR[i][1],finalLR[i][2]);
 					cout<<finalLR[i][0]<<" "<<finalLR[i][1]<<" "<<finalLR[i][2]<<endl;
 							//<<" area: "<<finalLR[i][3]<< " nPoints: " << finalLR[i][5] <<" LR: "<<finalLR[i][6]<<endl;
 				}
